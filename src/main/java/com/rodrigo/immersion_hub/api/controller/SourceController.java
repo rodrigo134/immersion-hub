@@ -1,9 +1,11 @@
 package com.rodrigo.immersion_hub.api.controller;
 
 
+import com.rodrigo.immersion_hub.api.dto.request.SourceRequestDTO;
+import com.rodrigo.immersion_hub.api.dto.response.SourceResponseDTO;
 import com.rodrigo.immersion_hub.aplication.service.SourceService;
-import com.rodrigo.immersion_hub.domain.model.Source;
-import org.springframework.stereotype.Repository;
+import com.rodrigo.immersion_hub.domain.enums.Language;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,12 +22,17 @@ public class SourceController {
     }
 
     @GetMapping
-    public List<Source> getAll() {
-        return sourceService.findAll();
+    public ResponseEntity<List<SourceResponseDTO>>  getAll(@RequestParam(required = false) Language language) {
+        if (language != null) {
+            return ResponseEntity.ok(sourceService.findByLanguage(language));
+        }
+
+
+        return ResponseEntity.ok(sourceService.findAll());
     }
     @PostMapping
-    public Source create(@RequestBody Source source){
-        return sourceService.create(source);
+    public ResponseEntity<SourceResponseDTO> create(@RequestBody SourceRequestDTO requestDTO){
+        return ResponseEntity.ok(sourceService.create(requestDTO));
     }
 
     @DeleteMapping("/{id}")

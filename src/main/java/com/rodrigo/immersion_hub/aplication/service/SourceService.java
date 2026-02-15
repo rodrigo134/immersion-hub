@@ -1,5 +1,8 @@
 package com.rodrigo.immersion_hub.aplication.service;
 
+import com.rodrigo.immersion_hub.api.dto.request.SourceRequestDTO;
+import com.rodrigo.immersion_hub.api.dto.response.SourceResponseDTO;
+import com.rodrigo.immersion_hub.domain.enums.Language;
 import com.rodrigo.immersion_hub.domain.model.Source;
 import com.rodrigo.immersion_hub.domain.repository.SourceRepository;
 import org.springframework.stereotype.Service;
@@ -10,19 +13,29 @@ import java.util.UUID;
 @Service
 public class SourceService {
 
-    private SourceRepository sourceRepository;
+    private final SourceRepository sourceRepository;
 
     public SourceService(SourceRepository sourceRepository) {
         this.sourceRepository = sourceRepository;
     }
 
 
-    public List<Source> findAll() {
-        return sourceRepository.findAll();
+    public List<SourceResponseDTO>findAll() {
+        return sourceRepository.findAll()
+                .stream()
+                .map(SourceResponseDTO::fromEntity)
+                .toList();
     }
-    public Source create(Source source){
+    public SourceResponseDTO create(SourceRequestDTO requestDTO){
+        Source source = new Source();
         source.setId(UUID.randomUUID());
-        return sourceRepository.save(source);
+        source.setName(requestDTO.name());
+        source.setUrl(requestDTO.url());
+        source.setCategory(requestDTO.category());
+        source.setLanguage(requestDTO.language());
+        
+        Source savedSource = sourceRepository.save(source);
+        return SourceResponseDTO.fromEntity(savedSource);
     }
 
 
@@ -30,6 +43,12 @@ public class SourceService {
         sourceRepository.deleteById(id);
     }
 
+    public List<SourceResponseDTO> findByLanguage(Language language) {
+        return sourceRepository.findByLanguage(language)
+                .stream()
+                .map(SourceResponseDTO::fromEntity)
+                .toList();
+    }
 
 
 }
