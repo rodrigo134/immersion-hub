@@ -1,6 +1,7 @@
 package com.rodrigo.immersion_hub.domain.model;
 
 import com.rodrigo.immersion_hub.domain.enums.SourceCategory;
+import com.rodrigo.immersion_hub.domain.enums.Language;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,5 +28,9 @@ public class Source {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SourceCategory category;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Language language;
 
 }
