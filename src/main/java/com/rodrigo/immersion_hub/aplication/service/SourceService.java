@@ -4,9 +4,10 @@ import com.rodrigo.immersion_hub.api.dto.request.SourceRequestDTO;
 import com.rodrigo.immersion_hub.api.dto.response.SourceResponseDTO;
 import com.rodrigo.immersion_hub.domain.enums.Language;
 import com.rodrigo.immersion_hub.domain.model.Source;
+import com.rodrigo.immersion_hub.domain.exception.NotFoundException;
 import com.rodrigo.immersion_hub.domain.repository.SourceRepository;
-import org.springframework.stereotype.Service;
 
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,8 +45,10 @@ public class SourceService {
     }
 
     public List<SourceResponseDTO> findByLanguage(Language language) {
-        return sourceRepository.findByLanguage(language)
-                .stream()
+        List<Source> sources = sourceRepository.findByLanguage(language);
+
+        
+        return sources.stream()
                 .map(SourceResponseDTO::fromEntity)
                 .toList();
     }

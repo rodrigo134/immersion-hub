@@ -5,6 +5,7 @@ import com.rodrigo.immersion_hub.api.dto.request.SourceRequestDTO;
 import com.rodrigo.immersion_hub.api.dto.response.SourceResponseDTO;
 import com.rodrigo.immersion_hub.aplication.service.SourceService;
 import com.rodrigo.immersion_hub.domain.enums.Language;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,12 +27,10 @@ public class SourceController {
         if (language != null) {
             return ResponseEntity.ok(sourceService.findByLanguage(language));
         }
-
-
         return ResponseEntity.ok(sourceService.findAll());
     }
     @PostMapping
-    public ResponseEntity<SourceResponseDTO> create(@RequestBody SourceRequestDTO requestDTO){
+    public ResponseEntity<SourceResponseDTO> create(@Valid @RequestBody SourceRequestDTO requestDTO){
         return ResponseEntity.ok(sourceService.create(requestDTO));
     }
 
