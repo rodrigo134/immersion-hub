@@ -70,9 +70,9 @@ export default function PomodoroPanel({ onClose }: PomodoroPanelProps) {
   }
 
   return (
-    <div className="fixed right-6 top-20 z-50 w-[350px] overflow-hidden rounded-2xl border border-blue-500/20 bg-[#091636]/95 p-6 shadow-2xl backdrop-blur">
+    <div className="w-[320px] overflow-hidden rounded-2xl border border-blue-500/20 bg-[#091636]/95 p-5 shadow-2xl backdrop-blur">
       <div className="mb-5 flex items-center justify-between">
-        <h3 className="text-3xl font-extrabold text-white">Timer de Foco</h3>
+        <h3 className="text-2xl font-extrabold text-white">Timer de Foco</h3>
         <button
           onClick={onClose}
           className="rounded-lg p-1 text-white/70 transition hover:bg-white/10 hover:text-white"
@@ -82,10 +82,10 @@ export default function PomodoroPanel({ onClose }: PomodoroPanelProps) {
         </button>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-white/5 p-1">
+      <div className="mb-5 grid grid-cols-2 gap-2 rounded-xl bg-white/5 p-1">
         <button
           onClick={() => switchMode('focus')}
-          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-semibold transition ${
+          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
             mode === 'focus'
               ? 'bg-rose-500/20 text-rose-400 ring-1 ring-rose-400/30'
               : 'text-slate-300 hover:bg-white/5'
@@ -97,7 +97,7 @@ export default function PomodoroPanel({ onClose }: PomodoroPanelProps) {
 
         <button
           onClick={() => switchMode('break')}
-          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-semibold transition ${
+          className={`flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
             mode === 'break'
               ? 'bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-300/30'
               : 'text-slate-300 hover:bg-white/5'
@@ -108,7 +108,7 @@ export default function PomodoroPanel({ onClose }: PomodoroPanelProps) {
         </button>
       </div>
 
-      <div className="relative mx-auto mb-6 flex size-[270px] items-center justify-center">
+      <div className="relative mx-auto mb-5 flex size-[240px] items-center justify-center">
         <svg className="absolute inset-0 -rotate-90" viewBox="0 0 280 280" aria-hidden="true">
           <circle
             cx="140"
@@ -136,12 +136,12 @@ export default function PomodoroPanel({ onClose }: PomodoroPanelProps) {
           <div className="mb-2 text-lg font-medium uppercase tracking-wide text-slate-300">
             {mode === 'focus' ? 'FOCO' : 'PAUSA'}
           </div>
-          <div className="mb-4 text-7xl font-black leading-none text-white">{formatTime(secondsLeft)}</div>
+          <div className="mb-4 text-6xl font-black leading-none text-white">{formatTime(secondsLeft)}</div>
 
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={() => setIsRunning((v) => !v)}
-              className="flex size-14 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg shadow-orange-500/35 transition hover:scale-105"
+              className="flex size-11 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-rose-500 text-white shadow-lg shadow-orange-500/35 transition hover:scale-105"
               aria-label={isRunning ? 'Pausar' : 'Iniciar'}
             >
               {isRunning ? <Pause className="size-6" /> : <Play className="size-6" />}
@@ -149,7 +149,7 @@ export default function PomodoroPanel({ onClose }: PomodoroPanelProps) {
 
             <button
               onClick={resetTimer}
-              className="flex size-12 items-center justify-center rounded-full border border-slate-600/70 text-slate-300 transition hover:bg-white/10"
+              className="flex size-11 items-center justify-center rounded-full border border-slate-600/70 text-slate-300 transition hover:bg-white/10"
               aria-label="Resetar"
             >
               <RotateCcw className="size-5" />
@@ -170,8 +170,10 @@ export default function PomodoroPanel({ onClose }: PomodoroPanelProps) {
             />
           ))}
         </div>
-        <p className="text-2xl text-slate-300">Total: {completedSessions} sessoes</p>
+        <p className="text-xl text-slate-300">Total: {completedSessions} sessoes</p>
       </div>
     </div>
   )
 }
+
+
