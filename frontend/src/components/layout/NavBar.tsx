@@ -27,15 +27,15 @@ export default function Navbar({ onStart }: NavbarProps) {
   }
 
   return (
-    <div className="relative min-h-screen bg-slate-800">
+    <div className="relative min-h-screen">
       {/* BACKGROUND */}
-      <div className="absolute inset-0 z-0">
+      <div className="pointer-events-none fixed inset-0 z-0">
         <img
           src={backgroundImages[currentBgIndex]}
           alt="Background"
           className="h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-slate-900/30"></div>
+
       </div>
 
       {/* NAVBAR */}
@@ -185,7 +185,8 @@ export default function Navbar({ onStart }: NavbarProps) {
       </div>
 
       {/* MAIN */}
-      <main className=" relative z-10 flex min-h-screen items-center justify-center">
+      <main className="relative z-10 flex min-h-screen items-center justify-center">
+        <div className="pointer-events-none absolute inset-0 bg-slate-950/45" />
         <AnimatePresence mode="wait">
           <motion.section
             key={currentBgIndex}
@@ -193,6 +194,7 @@ export default function Navbar({ onStart }: NavbarProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.35 }}
+            className="relative z-10"
           >
             <div className="relative mx-auto max-w-4xl text-center">
               <h1 className="mb-8 text-6xl font-black leading-tight text-white md:text-7xl">
@@ -230,3 +232,6 @@ export default function Navbar({ onStart }: NavbarProps) {
     </div>
   )
 }
+
+
+
