@@ -1,6 +1,7 @@
-import { Brain } from 'lucide-react'
+import { Brain, X } from 'lucide-react'
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import PomodoroPanel from './PomodoroPanel'
 
 const backgroundImages = [
   'https://images.unsplash.com/photo-1643106036140-06f32ef8fa83?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1920',
@@ -14,6 +15,7 @@ const backgroundImages = [
 type NavbarProps = {
   onStart?: () => void
 }
+
 type Panel = 'studyLang' | 'uiLang' | 'pomodoro' | null
 
 export default function Navbar({ onStart }: NavbarProps) {
@@ -21,6 +23,7 @@ export default function Navbar({ onStart }: NavbarProps) {
     Math.floor(Math.random() * backgroundImages.length),
   )
   const [openPanel, setOpenPanel] = useState<Panel>(null)
+  const isPomodoroOpen = openPanel === 'pomodoro'
 
   function togglePanel(panel: Exclude<Panel, null>) {
     setOpenPanel((curr) => (curr === panel ? null : panel))
@@ -28,17 +31,14 @@ export default function Navbar({ onStart }: NavbarProps) {
 
   return (
     <div className="relative min-h-screen">
-      {/* BACKGROUND */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <img
           src={backgroundImages[currentBgIndex]}
           alt="Background"
           className="h-full w-full object-cover"
         />
-
       </div>
 
-      {/* NAVBAR */}
       <div className="fixed top-0 z-50 w-full border-b border-slate-800 bg-slate-900/95">
         <nav className="container mx-auto flex items-center justify-between p-4">
           <div className="flex items-center gap-2">
@@ -58,6 +58,7 @@ export default function Navbar({ onStart }: NavbarProps) {
             <li><a href="#" className="text-gray-300 hover:text-white">Dicas</a></li>
             <li><a href="#" className="text-gray-300 hover:text-white">Inspiracao</a></li>
           </ul>
+
           <div className="flex items-center gap-2">
             <button
               onClick={() => togglePanel('studyLang')}
@@ -65,14 +66,12 @@ export default function Navbar({ onStart }: NavbarProps) {
             >
               Study
             </button>
-
             <button
               onClick={() => togglePanel('uiLang')}
               className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
             >
               UI
             </button>
-
             <button
               onClick={() => togglePanel('pomodoro')}
               className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
@@ -80,10 +79,8 @@ export default function Navbar({ onStart }: NavbarProps) {
               Focus
             </button>
           </div>
-
-
-
         </nav>
+
         {openPanel && (
           <button
             aria-label="Fechar painel"
@@ -107,7 +104,7 @@ export default function Navbar({ onStart }: NavbarProps) {
                   onClick={() => setOpenPanel(null)}
                   className="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10"
                 >
-                  ✕
+                  <X className="size-4" />
                 </button>
               </div>
 
@@ -139,7 +136,7 @@ export default function Navbar({ onStart }: NavbarProps) {
                   onClick={() => setOpenPanel(null)}
                   className="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10"
                 >
-                  ✕
+                  <X className="size-4" />
                 </button>
               </div>
 
@@ -156,35 +153,22 @@ export default function Navbar({ onStart }: NavbarProps) {
               </div>
             </motion.div>
           )}
-
-          {openPanel === 'pomodoro' && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -10 }}
-              transition={{ duration: 0.15 }}
-              className="fixed right-6 top-20 z-50 w-72 rounded-2xl border border-slate-800 bg-slate-900/95 p-4 shadow-2xl"
-            >
-              <div className="mb-2 flex items-center justify-between">
-                <div className="font-bold text-white">Timer de foco</div>
-                <button
-                  onClick={() => setOpenPanel(null)}
-                  className="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="text-sm text-white/70">
-                (coloca seu Pomodoro aqui)
-              </div>
-            </motion.div>
-          )}
         </AnimatePresence>
 
+        <motion.div
+          initial={false}
+          animate={{
+            opacity: isPomodoroOpen ? 1 : 0,
+            scale: isPomodoroOpen ? 1 : 0.95,
+            y: isPomodoroOpen ? 0 : -10,
+          }}
+          transition={{ duration: 0.15 }}
+          className={isPomodoroOpen ? '' : 'pointer-events-none'}
+        >
+          <PomodoroPanel onClose={() => setOpenPanel(null)} />
+        </motion.div>
       </div>
 
-      {/* MAIN */}
       <main className="relative z-10 flex min-h-screen items-center justify-center">
         <div className="pointer-events-none absolute inset-0 bg-slate-950/45" />
         <AnimatePresence mode="wait">
@@ -232,6 +216,3 @@ export default function Navbar({ onStart }: NavbarProps) {
     </div>
   )
 }
-
-
-
