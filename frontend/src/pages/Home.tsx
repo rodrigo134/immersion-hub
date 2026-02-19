@@ -3,15 +3,18 @@ import FlashcardsManager from '../components/flashcards/FlashcardsManager'
 import FlashcardsReview from '../components/flashcards/FlashcardsReview'
 import NavBar from '../components/layout/NavBar'
 import StudyAreas from '../components/layout/StudyAreas'
+import CategoryMaterialsScreen from '../components/study/CategoryMaterialsScreen'
 import { flashcardGateway } from '../services/flashcardGateway'
 import type { Flashcard, FlashcardInput } from '../types/flashcard'
+import type { StudyCategoryId } from '../types/study'
 
-type Screen = 'home' | 'flashcards' | 'review'
+type Screen = 'home' | 'flashcards' | 'review' | 'category'
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>('home')
   const [cards, setCards] = useState<Flashcard[]>([])
   const [reviewCards, setReviewCards] = useState<Flashcard[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<StudyCategoryId>('reading')
 
   useEffect(() => {
     void loadCards()
@@ -50,11 +53,23 @@ export default function Home() {
         if (section === 'home') setScreen('home')
         if (section === 'flashcards') setScreen('flashcards')
       }}
-      activeSection={screen === 'home' ? 'home' : 'flashcards'}
+      activeSection={screen === 'flashcards' || screen === 'review' ? 'flashcards' : 'home'}
       showHero={screen === 'home'}
     >
       {screen === 'home' && (
-        <StudyAreas onSelectCategory={() => setScreen('flashcards')} />
+        <StudyAreas
+          onSelectCategory={(id) => {
+            setSelectedCategory(id)
+            setScreen('category')
+          }}
+        />
+      )}
+
+      {screen === 'category' && (
+        <CategoryMaterialsScreen
+          categoryId={selectedCategory}
+          onBack={() => setScreen('home')}
+        />
       )}
 
       {screen === 'flashcards' && (
