@@ -14,11 +14,17 @@ const backgroundImages = [
 type NavbarProps = {
   onStart?: () => void
 }
+type Panel = 'studyLang' | 'uiLang' | 'pomodoro' | null
 
 export default function Navbar({ onStart }: NavbarProps) {
   const [currentBgIndex] = useState(
     Math.floor(Math.random() * backgroundImages.length),
   )
+  const [openPanel, setOpenPanel] = useState<Panel>(null)
+
+  function togglePanel(panel: Exclude<Panel, null>) {
+    setOpenPanel((curr) => (curr === panel ? null : panel))
+  }
 
   return (
     <div className="relative min-h-screen bg-slate-800">
@@ -52,11 +58,134 @@ export default function Navbar({ onStart }: NavbarProps) {
             <li><a href="#" className="text-gray-300 hover:text-white">Dicas</a></li>
             <li><a href="#" className="text-gray-300 hover:text-white">Inspiracao</a></li>
           </ul>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => togglePanel('studyLang')}
+              className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
+            >
+              Study
+            </button>
+
+            <button
+              onClick={() => togglePanel('uiLang')}
+              className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
+            >
+              UI
+            </button>
+
+            <button
+              onClick={() => togglePanel('pomodoro')}
+              className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
+            >
+              Focus
+            </button>
+          </div>
+
+
+
         </nav>
+        {openPanel && (
+          <button
+            aria-label="Fechar painel"
+            onClick={() => setOpenPanel(null)}
+            className="fixed inset-0 z-40 cursor-default"
+          />
+        )}
+
+        <AnimatePresence>
+          {openPanel === 'studyLang' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.15 }}
+              className="fixed right-6 top-20 z-50 w-72 rounded-2xl border border-slate-800 bg-slate-900/95 p-4 shadow-2xl"
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <div className="font-bold text-white">Idioma de estudo</div>
+                <button
+                  onClick={() => setOpenPanel(null)}
+                  className="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {['EN', 'ES', 'FR', 'DE'].map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setOpenPanel(null)}
+                    className="rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/15"
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {openPanel === 'uiLang' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.15 }}
+              className="fixed right-6 top-20 z-50 w-72 rounded-2xl border border-slate-800 bg-slate-900/95 p-4 shadow-2xl"
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <div className="font-bold text-white">Idioma da interface</div>
+                <button
+                  onClick={() => setOpenPanel(null)}
+                  className="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {['PT', 'EN'].map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => setOpenPanel(null)}
+                    className="rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/15"
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {openPanel === 'pomodoro' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.15 }}
+              className="fixed right-6 top-20 z-50 w-72 rounded-2xl border border-slate-800 bg-slate-900/95 p-4 shadow-2xl"
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <div className="font-bold text-white">Timer de foco</div>
+                <button
+                  onClick={() => setOpenPanel(null)}
+                  className="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="text-sm text-white/70">
+                (coloca seu Pomodoro aqui)
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
       </div>
 
       {/* MAIN */}
-      <main className="z-10 flex min-h-screen items-center justify-center">
+      <main className=" relative z-10 flex min-h-screen items-center justify-center">
         <AnimatePresence mode="wait">
           <motion.section
             key={currentBgIndex}
@@ -64,13 +193,12 @@ export default function Navbar({ onStart }: NavbarProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.35 }}
-            className="relative overflow-hidden px-6 py-32"
           >
             <div className="relative mx-auto max-w-4xl text-center">
               <h1 className="mb-8 text-6xl font-black leading-tight text-white md:text-7xl">
                 Domine Idiomas
                 <br />
-                <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                <span className="bg-gradient-to-br from-blue-400 to-purple-400 bg-clip-text text-transparent">
                   No Seu Ritmo
                 </span>
               </h1>
