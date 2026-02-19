@@ -1,33 +1,17 @@
-import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, Clock3, ExternalLink, Search, Star } from 'lucide-react'
+import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, ExternalLink, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { getCategoryMeta } from '../../constants/studyCategories'
 import { studyMaterialGateway } from '../../services/studyMaterialGateway'
-import type {
-  PaginatedStudyMaterials,
-  StudyCategoryId,
-  StudyDifficulty,
-} from '../../types/study'
+import type { PaginatedStudyMaterials, StudyCategoryId, StudyLanguage } from '../../types/study'
 
 type CategoryMaterialsScreenProps = {
   categoryId: StudyCategoryId
+  language: StudyLanguage
   onBack: () => void
 }
 
 const PAGE_SIZE = 8
 
-function difficultyLabel(value: StudyDifficulty): string {
-  if (value === 'beginner') return 'Iniciante'
-  if (value === 'intermediate') return 'Intermediario'
-  return 'Avancado'
-}
-
-function difficultyClass(value: StudyDifficulty): string {
-  if (value === 'beginner') return 'border-emerald-500/40 bg-emerald-500/20 text-emerald-300'
-  if (value === 'intermediate') return 'border-amber-500/40 bg-amber-500/20 text-amber-300'
-  return 'border-rose-500/40 bg-rose-500/20 text-rose-300'
-}
-
-export default function CategoryMaterialsScreen({ categoryId, onBack }: CategoryMaterialsScreenProps) {
+export default function CategoryMaterialsScreen({ categoryId, language, onBack }: CategoryMaterialsScreenProps) {
   const [pageData, setPageData] = useState<PaginatedStudyMaterials>({
     items: [],
     total: 0,
@@ -43,7 +27,7 @@ export default function CategoryMaterialsScreen({ categoryId, onBack }: Category
 
   useEffect(() => {
     setPage(1)
-  }, [categoryId, search])
+  }, [categoryId, language, search])
 
   useEffect(() => {
     let mounted = true
@@ -57,6 +41,7 @@ export default function CategoryMaterialsScreen({ categoryId, onBack }: Category
           page,
           pageSize: PAGE_SIZE,
           search,
+          language,
         })
 
         if (mounted) setPageData(result)
@@ -71,9 +56,9 @@ export default function CategoryMaterialsScreen({ categoryId, onBack }: Category
     return () => {
       mounted = false
     }
-  }, [categoryId, page, search])
+  }, [categoryId, language, page, search])
 
-  const category = getCategoryMeta(categoryId)
+  const categoryTitle = categoryId.replace(/[_-]+/g, ' ').replace(/\\b\\w/g, (char) => char.toUpperCase())
 
   return (
     <section className="relative z-10 min-h-screen px-6 pb-14 pt-28">
@@ -87,9 +72,9 @@ export default function CategoryMaterialsScreen({ categoryId, onBack }: Category
         </button>
 
         <header className="mb-6">
-          <h1 className="text-5xl font-black text-white md:text-6xl">Materiais de {category.title}</h1>
+          <h1 className="text-5xl font-black text-white md:text-6xl">Materiais de {categoryTitle}</h1>
           <p className="mt-2 text-xl text-slate-300">
-            {pageData.total} recursos disponiveis para estudo
+            {pageData.total} recursos disponiveis para estudo ({language})
           </p>
         </header>
 
@@ -129,24 +114,12 @@ export default function CategoryMaterialsScreen({ categoryId, onBack }: Category
                     <div className="rounded-xl bg-cyan-500/20 p-3 text-cyan-300">
                       <BookOpen className="size-7" />
                     </div>
-                    <span className={`rounded-full border px-3 py-1 text-sm font-semibold ${difficultyClass(item.difficulty)}`}>
-                      {difficultyLabel(item.difficulty)}
+                    <span className="rounded-full border border-blue-500/40 bg-blue-500/15 px-3 py-1 text-sm font-semibold text-blue-200">
+                      {item.language || '-'}
                     </span>
                   </div>
 
-                  <h3 className="text-2xl font-extrabold text-white">{item.title}</h3>
-                  <p className="mt-2 text-lg text-slate-300">{item.description}</p>
-
-                  <div className="mt-5 flex items-center justify-between text-slate-300">
-                    <span className="inline-flex items-center gap-2 text-base">
-                      <Clock3 className="size-4" />
-                      {item.durationMinutes} min
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-base font-bold text-amber-300">
-                      <Star className="size-4" />
-                      {item.rating.toFixed(1)}
-                    </span>
-                  </div>
+                  <h3 className="text-2xl font-extrabold text-white">{item.name}</h3>
 
                   <a
                     href={item.url}
@@ -163,7 +136,7 @@ export default function CategoryMaterialsScreen({ categoryId, onBack }: Category
 
             {pageData.items.length === 0 && (
               <div className="mt-6 rounded-2xl border border-slate-700/50 bg-slate-900/45 p-8 text-center text-slate-300 backdrop-blur-sm">
-                Nenhum material encontrado com os filtros atuais.
+                Nenhum material encontrado.
               </div>
             )}
 
@@ -197,3 +170,4 @@ export default function CategoryMaterialsScreen({ categoryId, onBack }: Category
     </section>
   )
 }
+

@@ -5,8 +5,9 @@ import NavBar from '../components/layout/NavBar'
 import StudyAreas from '../components/layout/StudyAreas'
 import CategoryMaterialsScreen from '../components/study/CategoryMaterialsScreen'
 import { flashcardGateway } from '../services/flashcardGateway'
+import { studyMaterialGateway } from '../services/studyMaterialGateway'
 import type { Flashcard, FlashcardInput } from '../types/flashcard'
-import type { StudyCategoryId } from '../types/study'
+import type { StudyCategoryId, StudyCategorySummary, StudyLanguage } from '../types/study'
 
 type Screen = 'home' | 'flashcards' | 'review' | 'category'
 
@@ -14,15 +15,38 @@ export default function Home() {
   const [screen, setScreen] = useState<Screen>('home')
   const [cards, setCards] = useState<Flashcard[]>([])
   const [reviewCards, setReviewCards] = useState<Flashcard[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<StudyCategoryId>('reading')
+  const [selectedCategory, setSelectedCategory] = useState<StudyCategoryId>('')
+  const [studyLanguage, setStudyLanguage] = useState<StudyLanguage>('EN')
+  const [categories, setCategories] = useState<StudyCategorySummary[]>([])
+  const [loadingCategories, setLoadingCategories] = useState(false)
 
   useEffect(() => {
     void loadCards()
   }, [])
 
+  useEffect(() => {
+    void loadCategories()
+  }, [studyLanguage])
+
   async function loadCards() {
     const list = await flashcardGateway.list()
     setCards(list)
+  }
+
+  async function loadCategories() {
+    setLoadingCategories(true)
+    try {
+      const list = await studyMaterialGateway.listCategories(studyLanguage)
+      setCategories(list)
+
+      if (list.length > 0) {
+        setSelectedCategory((current) => (current ? current : list[0].id))
+      } else {
+        setSelectedCategory('')
+      }
+    } finally {
+      setLoadingCategories(false)
+    }
   }
 
   async function handleCreate(input: FlashcardInput) {
@@ -55,9 +79,13 @@ export default function Home() {
       }}
       activeSection={screen === 'flashcards' || screen === 'review' ? 'flashcards' : 'home'}
       showHero={screen === 'home'}
+      studyLanguage={studyLanguage}
+      onStudyLanguageChange={setStudyLanguage}
     >
       {screen === 'home' && (
         <StudyAreas
+          categories={categories}
+          loading={loadingCategories}
           onSelectCategory={(id) => {
             setSelectedCategory(id)
             setScreen('category')
@@ -65,9 +93,10 @@ export default function Home() {
         />
       )}
 
-      {screen === 'category' && (
+      {screen === 'category' && selectedCategory && (
         <CategoryMaterialsScreen
           categoryId={selectedCategory}
+          language={studyLanguage}
           onBack={() => setScreen('home')}
         />
       )}

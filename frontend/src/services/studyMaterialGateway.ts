@@ -1,94 +1,59 @@
 import type {
   PaginatedStudyMaterials,
   StudyCategoryId,
-  StudyDifficulty,
+  StudyCategorySummary,
+  StudyLanguage,
   StudyMaterial,
   StudyMaterialQuery,
 } from '../types/study'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim()
 
+type BackendSource = {
+  id: string
+  name: string
+  url: string
+  category: string
+  language: string
+}
+
 export interface StudyMaterialGateway {
+  listCategories(language: StudyLanguage): Promise<StudyCategorySummary[]>
   listByCategory(
     categoryId: StudyCategoryId,
     query?: StudyMaterialQuery,
   ): Promise<PaginatedStudyMaterials>
 }
 
-type SeedTemplate = {
-  title: string
-  description: string
-  difficulty: StudyDifficulty
-  durationMinutes: number
-  rating: number
+function normalizeCategory(raw: string | null | undefined): StudyCategoryId {
+  const value = String(raw ?? '').trim()
+  if (!value) return 'uncategorized'
+  return value.toLowerCase()
 }
 
-const templates: Record<StudyCategoryId, SeedTemplate[]> = {
-  reading: [
-    { title: 'English Short Stories', description: 'Contos para iniciantes', difficulty: 'beginner', durationMinutes: 15, rating: 4.8 },
-    { title: 'News Articles', description: 'Artigos de noticias atuais', difficulty: 'intermediate', durationMinutes: 20, rating: 4.7 },
-    { title: 'Literature Highlights', description: 'Trechos literarios com vocabulario avancado', difficulty: 'advanced', durationMinutes: 24, rating: 4.9 },
-  ],
-  speaking: [
-    { title: 'Daily Conversation Drills', description: 'Dialogos para pratica diaria', difficulty: 'beginner', durationMinutes: 12, rating: 4.6 },
-    { title: 'Pronunciation Workout', description: 'Treino de pronuncia por fonemas', difficulty: 'intermediate', durationMinutes: 18, rating: 4.7 },
-    { title: 'Debate Practice', description: 'Topicos para argumentacao fluente', difficulty: 'advanced', durationMinutes: 25, rating: 4.8 },
-  ],
-  comprehension: [
-    { title: 'Podcast Slow English', description: 'Audios com velocidade reduzida', difficulty: 'beginner', durationMinutes: 14, rating: 4.5 },
-    { title: 'Interview Clips', description: 'Trechos reais com sotaques variados', difficulty: 'advanced', durationMinutes: 22, rating: 4.8 },
-    { title: 'Everyday Audio Scenes', description: 'Dialogos do cotidiano em contexto real', difficulty: 'intermediate', durationMinutes: 17, rating: 4.7 },
-  ],
-  extension: [
-    { title: 'Phrasal Verbs Pack', description: 'Expressoes para comunicacao natural', difficulty: 'intermediate', durationMinutes: 16, rating: 4.7 },
-    { title: 'Idioms in Context', description: 'Idiomas aplicados em frases reais', difficulty: 'advanced', durationMinutes: 19, rating: 4.9 },
-    { title: 'Collocations Builder', description: 'Combinacoes naturais de palavras', difficulty: 'beginner', durationMinutes: 13, rating: 4.6 },
-  ],
+function categoryTitle(categoryId: string): string {
+  return categoryId
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
-function buildSeedData(): StudyMaterial[] {
-  const all: StudyMaterial[] = []
-  const categories = Object.keys(templates) as StudyCategoryId[]
-
-  categories.forEach((categoryId) => {
-    for (let i = 1; i <= 24; i += 1) {
-      const template = templates[categoryId][(i - 1) % templates[categoryId].length]
-      all.push({
-        id: `${categoryId}_${i}`,
-        categoryId,
-        title: `${template.title} ${i}`,
-        description: template.description,
-        difficulty: template.difficulty,
-        durationMinutes: template.durationMinutes + (i % 4),
-        rating: Number((template.rating - (i % 3) * 0.1).toFixed(1)),
-        url: `https://example.com/${categoryId}/material-${i}`,
-      })
-    }
-  })
-
-  return all
-}
-
-const seededMaterials: StudyMaterial[] = buildSeedData()
-
-function sortItems(items: StudyMaterial[], sort: NonNullable<StudyMaterialQuery['sort']>): StudyMaterial[] {
-  const copy = items.slice()
-  switch (sort) {
-    case 'rating_desc':
-      return copy.sort((a, b) => b.rating - a.rating)
-    case 'rating_asc':
-      return copy.sort((a, b) => a.rating - b.rating)
-    case 'duration_asc':
-      return copy.sort((a, b) => a.durationMinutes - b.durationMinutes)
-    case 'duration_desc':
-      return copy.sort((a, b) => b.durationMinutes - a.durationMinutes)
-    case 'newest':
-    default:
-      return copy.sort((a, b) => b.id.localeCompare(a.id))
+function normalizeSource(source: BackendSource): StudyMaterial {
+  return {
+    id: String(source.id),
+    name: String(source.name ?? ''),
+    url: String(source.url ?? '#'),
+    category: normalizeCategory(source.category),
+    language: String(source.language ?? '-'),
   }
 }
 
-function paginate(items: StudyMaterial[], page: number, pageSize: number): PaginatedStudyMaterials {
+function paginate(
+  items: StudyMaterial[],
+  page: number,
+  pageSize: number,
+): PaginatedStudyMaterials {
   const total = items.length
   const totalPages = Math.max(1, Math.ceil(total / pageSize))
   const safePage = Math.min(Math.max(1, page), totalPages)
@@ -104,54 +69,74 @@ function paginate(items: StudyMaterial[], page: number, pageSize: number): Pagin
   }
 }
 
-class HybridStudyMaterialGateway implements StudyMaterialGateway {
+function filterAndSearch(
+  items: StudyMaterial[],
+  categoryId: StudyCategoryId,
+  search: string,
+): StudyMaterial[] {
+  const term = search.trim().toLowerCase()
+
+  return items.filter((item) => {
+    if (item.category !== categoryId) return false
+    if (!term) return true
+
+    const text = `${item.name} ${item.language}`.toLowerCase()
+    return text.includes(term)
+  })
+}
+
+class ApiStudyMaterialGateway implements StudyMaterialGateway {
+  private async fetchSourcesByLanguage(language: StudyLanguage): Promise<StudyMaterial[]> {
+    if (!API_BASE_URL) {
+      throw new Error('VITE_API_BASE_URL is not configured')
+    }
+
+    const params = new URLSearchParams({ language })
+    const response = await fetch(`${API_BASE_URL}/api/sources?${params.toString()}`)
+
+    if (!response.ok) {
+      throw new Error(`Failed to load sources (${response.status})`)
+    }
+
+    const payload = await response.json()
+
+    if (Array.isArray(payload)) {
+      return payload.map((item) => normalizeSource(item as BackendSource))
+    }
+
+    if (payload && Array.isArray(payload.items)) {
+      return (payload.items as BackendSource[]).map(normalizeSource)
+    }
+
+    throw new Error('Unexpected response format from /api/sources')
+  }
+
+  async listCategories(language: StudyLanguage): Promise<StudyCategorySummary[]> {
+    const items = await this.fetchSourcesByLanguage(language)
+
+    const map = new Map<StudyCategoryId, number>()
+    for (const item of items) {
+      map.set(item.category, (map.get(item.category) ?? 0) + 1)
+    }
+
+    return Array.from(map.entries())
+      .map(([id, count]) => ({ id, count, title: categoryTitle(id) }))
+      .sort((a, b) => a.title.localeCompare(b.title))
+  }
+
   async listByCategory(
     categoryId: StudyCategoryId,
     query: StudyMaterialQuery = {},
   ): Promise<PaginatedStudyMaterials> {
     const page = query.page ?? 1
     const pageSize = query.pageSize ?? 8
-    const search = query.search?.trim().toLowerCase() ?? ''
-    const difficulty = query.difficulty ?? 'all'
-    const sort = query.sort ?? 'newest'
+    const search = query.search?.trim() ?? ''
+    const language: StudyLanguage = query.language ?? 'EN'
 
-    if (API_BASE_URL) {
-      try {
-        const params = new URLSearchParams({
-          category: categoryId,
-          page: String(page),
-          pageSize: String(pageSize),
-          search,
-          difficulty,
-          sort,
-        })
-
-        const response = await fetch(`${API_BASE_URL}/study-materials?${params.toString()}`)
-        if (response.ok) {
-          const data = (await response.json()) as PaginatedStudyMaterials
-          if (data && Array.isArray(data.items)) return data
-        }
-      } catch {
-        // fallback while backend is unavailable
-      }
-    }
-
-    let items = seededMaterials.filter((item) => item.categoryId === categoryId)
-
-    if (difficulty !== 'all') {
-      items = items.filter((item) => item.difficulty === difficulty)
-    }
-
-    if (search.length > 0) {
-      items = items.filter((item) => {
-        const text = `${item.title} ${item.description}`.toLowerCase()
-        return text.includes(search)
-      })
-    }
-
-    items = sortItems(items, sort)
-    return paginate(items, page, pageSize)
+    const items = await this.fetchSourcesByLanguage(language)
+    const filtered = filterAndSearch(items, categoryId, search)
+    return paginate(filtered, page, pageSize)
   }
 }
 
-export const studyMaterialGateway: StudyMaterialGateway = new HybridStudyMaterialGateway()
+export const studyMaterialGateway: StudyMaterialGateway = new ApiStudyMaterialGateway()

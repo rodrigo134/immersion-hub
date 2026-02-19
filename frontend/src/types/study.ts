@@ -1,31 +1,26 @@
-export type StudyCategoryId = 'reading' | 'speaking' | 'comprehension' | 'extension'
+export type StudyCategoryId = string
 
-export type StudyDifficulty = 'beginner' | 'intermediate' | 'advanced'
+export type StudyLanguage = 'EN' | 'ES' | 'FR' | 'DE' | 'PT'
 
 export type StudyMaterial = {
   id: string
-  categoryId: StudyCategoryId
-  title: string
-  description: string
-  durationMinutes: number
-  difficulty: StudyDifficulty
-  rating: number
+  name: string
   url: string
+  category: StudyCategoryId
+  language: string
 }
 
-export type StudyMaterialSort =
-  | 'newest'
-  | 'rating_desc'
-  | 'rating_asc'
-  | 'duration_asc'
-  | 'duration_desc'
+export type StudyCategorySummary = {
+  id: StudyCategoryId
+  title: string
+  count: number
+}
 
 export type StudyMaterialQuery = {
   page?: number
   pageSize?: number
   search?: string
-  difficulty?: StudyDifficulty | 'all'
-  sort?: StudyMaterialSort
+  language?: StudyLanguage
 }
 
 export type PaginatedStudyMaterials = {

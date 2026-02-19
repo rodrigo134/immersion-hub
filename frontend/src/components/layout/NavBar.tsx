@@ -1,6 +1,7 @@
 import { Brain, X } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import type { StudyLanguage } from '../../types/study'
 import PomodoroPanel from './PomodoroPanel'
 
 const backgroundImages = [
@@ -20,9 +21,13 @@ type NavbarProps = {
   activeSection?: NavSection
   showHero?: boolean
   children?: ReactNode
+  studyLanguage: StudyLanguage
+  onStudyLanguageChange: (language: StudyLanguage) => void
 }
 
 type Panel = 'studyLang' | 'uiLang' | 'pomodoro' | null
+
+const studyLanguages: StudyLanguage[] = ['EN', 'ES', 'FR', 'DE', 'PT']
 
 export default function Navbar({
   onStart,
@@ -30,6 +35,8 @@ export default function Navbar({
   activeSection = 'home',
   showHero = true,
   children,
+  studyLanguage,
+  onStudyLanguageChange,
 }: NavbarProps) {
   const [currentBgIndex] = useState(
     Math.floor(Math.random() * backgroundImages.length),
@@ -80,7 +87,7 @@ export default function Navbar({
               onClick={() => togglePanel('studyLang')}
               className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
             >
-              Study
+              Study: {studyLanguage}
             </button>
             <button
               onClick={() => togglePanel('uiLang')}
@@ -124,14 +131,17 @@ export default function Navbar({
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                {['EN', 'ES', 'FR', 'DE'].map((l) => (
+              <div className="grid grid-cols-3 gap-2">
+                {studyLanguages.map((lang) => (
                   <button
-                    key={l}
-                    onClick={() => setOpenPanel(null)}
-                    className="rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/15"
+                    key={lang}
+                    onClick={() => {
+                      onStudyLanguageChange(lang)
+                      setOpenPanel(null)
+                    }}
+                    className={`rounded-xl px-3 py-2 text-sm text-white transition ${studyLanguage === lang ? 'bg-cyan-500/35 ring-1 ring-cyan-400' : 'bg-white/10 hover:bg-white/15'}`}
                   >
-                    {l}
+                    {lang}
                   </button>
                 ))}
               </div>
@@ -157,13 +167,13 @@ export default function Navbar({
               </div>
 
               <div className="grid grid-cols-2 gap-2">
-                {['PT', 'EN'].map((l) => (
+                {['PT', 'EN'].map((lang) => (
                   <button
-                    key={l}
+                    key={lang}
                     onClick={() => setOpenPanel(null)}
                     className="rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/15"
                   >
-                    {l}
+                    {lang}
                   </button>
                 ))}
               </div>
