@@ -2,6 +2,7 @@ package com.rodrigo.immersion_hub.aplication.service;
 
 import com.rodrigo.immersion_hub.api.dto.request.CardRequestDTO;
 import com.rodrigo.immersion_hub.api.dto.response.CardResponseDTO;
+import com.rodrigo.immersion_hub.domain.enums.Language;
 import com.rodrigo.immersion_hub.domain.exception.NotFoundException;
 import com.rodrigo.immersion_hub.domain.model.Card;
 import com.rodrigo.immersion_hub.domain.model.Deck;
@@ -31,6 +32,7 @@ public class CardService {
         Card card = new Card();
         card.setId(UUID.randomUUID());
         card.setDeck(deck);
+        card.setLanguage(requestDTO.language());
         card.setFront(requestDTO.front());
         card.setBack(requestDTO.back());
         card.setContext(requestDTO.context());
@@ -47,6 +49,27 @@ public class CardService {
         return cardRepository.findByDeckId(deckId).stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<CardResponseDTO> findByLanguage(Language language) {
+        return cardRepository.findByLanguage(language).stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<CardResponseDTO> findByDeckIdAndLanguage(UUID deckId, Language language) {
+        if (!deckRepository.existsById(deckId)) {
+            throw new NotFoundException("Deck not found with id: " + deckId);
+        }
+        return cardRepository.findByDeckIdAndLanguage(deckId, language).stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public CardResponseDTO findById(UUID id) {
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Card not found with id: " + id));
+        return toResponseDTO(card);
     }
 
     public List<CardResponseDTO> getCardsDueForReview(UUID deckId) {
@@ -71,6 +94,7 @@ public class CardService {
         card.setFront(requestDTO.front());
         card.setBack(requestDTO.back());
         card.setContext(requestDTO.context());
+        card.setLanguage(requestDTO.language());
         if (requestDTO.difficulty() != null) {
             card.setDifficulty(requestDTO.difficulty());
         }
@@ -118,6 +142,7 @@ public class CardService {
         return new CardResponseDTO(
                 card.getId(),
                 card.getDeck().getId(),
+                card.getLanguage(),
                 card.getFront(),
                 card.getBack(),
                 card.getContext(),

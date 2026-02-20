@@ -1,6 +1,7 @@
 package com.rodrigo.immersion_hub.domain.repository;
 
 import com.rodrigo.immersion_hub.domain.model.Card;
+import com.rodrigo.immersion_hub.domain.enums.Language;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,6 +15,10 @@ import java.util.UUID;
 public interface CardRepository extends JpaRepository<Card, UUID> {
     
     List<Card> findByDeckId(UUID deckId);
+    
+    List<Card> findByLanguage(Language language);
+    
+    List<Card> findByDeckIdAndLanguage(UUID deckId, Language language);
     
     @Query("SELECT c FROM Card c WHERE c.deck.id = :deckId AND c.nextReview <= :now ORDER BY c.nextReview ASC")
     List<Card> findCardsDueForReview(@Param("deckId") UUID deckId, @Param("now") LocalDateTime now);

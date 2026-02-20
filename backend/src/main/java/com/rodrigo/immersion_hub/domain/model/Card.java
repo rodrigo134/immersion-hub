@@ -1,5 +1,6 @@
 package com.rodrigo.immersion_hub.domain.model;
 
+import com.rodrigo.immersion_hub.domain.enums.Language;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,10 @@ public class Card {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deck_id", nullable = false)
     private Deck deck;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Language language;
 
     @Column(nullable = false)
     private String front;

@@ -3,6 +3,7 @@ package com.rodrigo.immersion_hub.api.controller;
 import com.rodrigo.immersion_hub.api.dto.request.CardRequestDTO;
 import com.rodrigo.immersion_hub.api.dto.response.CardResponseDTO;
 import com.rodrigo.immersion_hub.aplication.service.CardService;
+import com.rodrigo.immersion_hub.domain.enums.Language;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,18 @@ public class CardController {
     @GetMapping
     public ResponseEntity<List<CardResponseDTO>> getByDeckId(@RequestParam UUID deckId) {
         return ResponseEntity.ok(cardService.findByDeckId(deckId));
+    }
+
+    @GetMapping("/language")
+    public ResponseEntity<List<CardResponseDTO>> getByLanguage(@RequestParam Language language) {
+        return ResponseEntity.ok(cardService.findByLanguage(language));
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<CardResponseDTO>> getByDeckIdAndLanguage(
+            @RequestParam UUID deckId, 
+            @RequestParam Language language) {
+        return ResponseEntity.ok(cardService.findByDeckIdAndLanguage(deckId, language));
     }
 
     @GetMapping("/{id}")
