@@ -58,7 +58,9 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
     }
   }, [categoryId, language, page, search])
 
-  const categoryTitle = categoryId.replace(/[_-]+/g, ' ').replace(/\\b\\w/g, (char) => char.toUpperCase())
+  const categoryTitle = categoryId
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
 
   return (
     <section className="relative z-10 min-h-screen px-6 pb-14 pt-28">
@@ -104,28 +106,31 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
 
         {!loading && !error && (
           <>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {pageData.items.map((item) => (
                 <article
                   key={item.id}
-                  className="rounded-3xl border border-slate-700/50 bg-slate-900/45 p-6 backdrop-blur-sm"
+                  className="flex min-h-[220px] flex-col rounded-3xl border border-slate-700/50 bg-slate-900/45 p-5 backdrop-blur-sm"
                 >
-                  <div className="mb-5 flex items-center justify-between">
+                  <div className="mb-4 flex items-center justify-between">
                     <div className="rounded-xl bg-cyan-500/20 p-3 text-cyan-300">
-                      <BookOpen className="size-7" />
+                      <BookOpen className="size-6" />
                     </div>
-                    <span className="rounded-full border border-blue-500/40 bg-blue-500/15 px-3 py-1 text-sm font-semibold text-blue-200">
+                    <span className="rounded-full border border-blue-500/40 bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-200">
                       {item.language || '-'}
                     </span>
                   </div>
 
-                  <h3 className="text-2xl font-extrabold text-white">{item.name}</h3>
+                  <h3 className="line-clamp-2 text-xl font-extrabold text-white">{item.name}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm text-slate-300">
+                    {item.description?.trim() || 'Sem descricao disponivel.'}
+                  </p>
 
                   <a
                     href={item.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-3 text-base font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:brightness-110"
+                    className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:brightness-110"
                   >
                     Acessar Material
                     <ExternalLink className="size-4" />
@@ -170,4 +175,3 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
     </section>
   )
 }
-

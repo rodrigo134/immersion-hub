@@ -32,6 +32,7 @@ public class SourceService {
         source.setId(UUID.randomUUID());
         source.setName(requestDTO.name());
         source.setUrl(requestDTO.url());
+        source.setDescription(requestDTO.description());
         source.setCategory(requestDTO.category());
         source.setLanguage(requestDTO.language());
         

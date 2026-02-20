@@ -12,6 +12,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim()
 type BackendSource = {
   id: string
   name: string
+  description: string
   url: string
   category: string
   language: string
@@ -43,6 +44,7 @@ function normalizeSource(source: BackendSource): StudyMaterial {
   return {
     id: String(source.id),
     name: String(source.name ?? ''),
+    description: String((source as { description?: string }).description ?? ''),
     url: String(source.url ?? '#'),
     category: normalizeCategory(source.category),
     language: String(source.language ?? '-'),
@@ -140,3 +142,4 @@ class ApiStudyMaterialGateway implements StudyMaterialGateway {
 }
 
 export const studyMaterialGateway: StudyMaterialGateway = new ApiStudyMaterialGateway()
+

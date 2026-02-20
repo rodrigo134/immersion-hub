@@ -5,6 +5,7 @@ export type StudyLanguage = 'EN' | 'ES' | 'FR' | 'DE' | 'PT'
 export type StudyMaterial = {
   id: string
   name: string
+  description: string
   url: string
   category: StudyCategoryId
   language: string
@@ -30,3 +31,4 @@ export type PaginatedStudyMaterials = {
   pageSize: number
   totalPages: number
 }
+

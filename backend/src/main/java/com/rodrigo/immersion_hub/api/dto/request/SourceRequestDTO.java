@@ -10,7 +10,7 @@ public record SourceRequestDTO(
          @NotBlank @Size(min = 2, max = 40)
          String name,
          @NotBlank String url,
-         String description,
+         @NotBlank String description,
          @NotNull SourceCategory category,
          @NotNull Language language
 
