@@ -16,3 +16,8 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:mySecretKeyForImmersionHub123456789}
+  expiration: ${JWT_EXPIRATION:86400000}

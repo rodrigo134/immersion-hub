@@ -1,5 +1,6 @@
 import { Copy, Mic, Monitor, Pause, RotateCcw, Save, Trash2, Volume2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { UiLanguage } from '../../types/ui'
 
 type TranscriptItem = {
   id: string
@@ -51,6 +52,10 @@ type WindowWithSpeech = Window & {
 }
 
 const LOCAL_STORAGE_KEY = 'immersion_hub_transcription_records_v1'
+
+type TranscriptionScreenProps = {
+  uiLanguage: UiLanguage
+}
 
 const languageOptions = [
   { label: 'English', value: 'en-US' },
@@ -137,7 +142,8 @@ function loadSavedRecords(): SavedRecord[] {
   }
 }
 
-export default function TranscriptionScreen() {
+export default function TranscriptionScreen({ uiLanguage }: TranscriptionScreenProps) {
+  void uiLanguage
   const [language, setLanguage] = useState('en-US')
   const [isListening, setIsListening] = useState(false)
   const [tabSelected, setTabSelected] = useState(false)

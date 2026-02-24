@@ -7,6 +7,7 @@ import type {
   FlashcardUpdate,
   LanguageCode,
 } from '../types/flashcard'
+import { authService } from './authService'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || ''
 
@@ -57,9 +58,10 @@ function apiUrl(path: string): string {
 }
 
 async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const authHeaders = authService.getAuthHeaders()
   const response = await fetch(apiUrl(path), {
     headers: {
-      'Content-Type': 'application/json',
+      ...authHeaders,
       ...(init?.headers ?? {}),
     },
     ...init,

@@ -6,14 +6,18 @@ import com.rodrigo.immersion_hub.domain.enums.Language;
 import com.rodrigo.immersion_hub.domain.exception.NotFoundException;
 import com.rodrigo.immersion_hub.domain.model.Card;
 import com.rodrigo.immersion_hub.domain.model.Deck;
+import com.rodrigo.immersion_hub.domain.model.User;
 import com.rodrigo.immersion_hub.domain.repository.CardRepository;
 import com.rodrigo.immersion_hub.domain.repository.DeckRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,9 +29,20 @@ public class CardService {
     private final CardRepository cardRepository;
     private final DeckRepository deckRepository;
 
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
+    }
+
     public CardResponseDTO create(CardRequestDTO requestDTO) {
-        Deck deck = deckRepository.findById(requestDTO.deckId())
-                .orElseThrow(() -> new NotFoundException("Deck not found with id: " + requestDTO.deckId()));
+        User currentUser = getCurrentUser();
+        Optional<Deck> deckOpt = deckRepository.findByIdAndUserId(requestDTO.deckId(), currentUser.getId());
+        
+        if (deckOpt.isEmpty()) {
+            throw new NotFoundException("Deck not found with id: " + requestDTO.deckId());
+        }
+        
+        Deck deck = deckOpt.get();
 
         Card card = new Card();
         card.setId(UUID.randomUUID());
@@ -43,52 +58,71 @@ public class CardService {
     }
 
     public List<CardResponseDTO> findByDeckId(UUID deckId) {
+        User currentUser = getCurrentUser();
         if (!deckRepository.existsById(deckId)) {
             throw new NotFoundException("Deck not found with id: " + deckId);
         }
-        return cardRepository.findByDeckId(deckId).stream()
+        return cardRepository.findByDeckIdAndUserId(deckId, currentUser.getId()).stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
     public List<CardResponseDTO> findByLanguage(Language language) {
-        return cardRepository.findByLanguage(language).stream()
+        User currentUser = getCurrentUser();
+        return cardRepository.findByUserIdAndLanguage(currentUser.getId(), language).stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
     public List<CardResponseDTO> findByDeckIdAndLanguage(UUID deckId, Language language) {
+        User currentUser = getCurrentUser();
         if (!deckRepository.existsById(deckId)) {
             throw new NotFoundException("Deck not found with id: " + deckId);
         }
-        return cardRepository.findByDeckIdAndLanguage(deckId, language).stream()
+        return cardRepository.findByDeckIdAndUserId(deckId, currentUser.getId()).stream()
+                .filter(card -> card.getLanguage().equals(language))
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
     public CardResponseDTO findById(UUID id) {
+        User currentUser = getCurrentUser();
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card not found with id: " + id));
+        
+        if (!card.getDeck().getUser().getId().equals(currentUser.getId())) {
+            throw new NotFoundException("Card not found with id: " + id);
+        }
+        
         return toResponseDTO(card);
     }
 
     public List<CardResponseDTO> getCardsDueForReview(UUID deckId) {
+        User currentUser = getCurrentUser();
         if (!deckRepository.existsById(deckId)) {
             throw new NotFoundException("Deck not found with id: " + deckId);
         }
         return cardRepository.findCardsDueForReview(deckId, LocalDateTime.now()).stream()
+                .filter(card -> card.getDeck().getUser().getId().equals(currentUser.getId()))
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
     public CardResponseDTO update(UUID id, CardRequestDTO requestDTO) {
+        User currentUser = getCurrentUser();
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card not found with id: " + id));
+        
+        if (!card.getDeck().getUser().getId().equals(currentUser.getId())) {
+            throw new NotFoundException("Card not found with id: " + id);
+        }
 
         if (!card.getDeck().getId().equals(requestDTO.deckId())) {
-            Deck newDeck = deckRepository.findById(requestDTO.deckId())
-                    .orElseThrow(() -> new NotFoundException("Deck not found with id: " + requestDTO.deckId()));
-            card.setDeck(newDeck);
+            Optional<Deck> newDeckOpt = deckRepository.findByIdAndUserId(requestDTO.deckId(), currentUser.getId());
+            if (newDeckOpt.isEmpty()) {
+                throw new NotFoundException("Deck not found with id: " + requestDTO.deckId());
+            }
+            card.setDeck(newDeckOpt.get());
         }
 
         card.setFront(requestDTO.front());
@@ -104,15 +138,25 @@ public class CardService {
     }
 
     public void deleteById(UUID id) {
-        if (!cardRepository.existsById(id)) {
+        User currentUser = getCurrentUser();
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Card not found with id: " + id));
+        
+        if (!card.getDeck().getUser().getId().equals(currentUser.getId())) {
             throw new NotFoundException("Card not found with id: " + id);
         }
-        cardRepository.deleteById(id);
+        
+        cardRepository.delete(card);
     }
 
     public CardResponseDTO updateReviewProgress(UUID id, int quality) {
+        User currentUser = getCurrentUser();
         Card card = cardRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Card not found with id: " + id));
+        
+        if (!card.getDeck().getUser().getId().equals(currentUser.getId())) {
+            throw new NotFoundException("Card not found with id: " + id);
+        }
 
         updateSpacedRepetition(card, quality);
         Card updatedCard = cardRepository.save(card);

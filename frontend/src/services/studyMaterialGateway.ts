@@ -6,6 +6,7 @@ import type {
   StudyMaterial,
   StudyMaterialQuery,
 } from '../types/study'
+import { authService } from './authService'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim()
 
@@ -94,7 +95,9 @@ class ApiStudyMaterialGateway implements StudyMaterialGateway {
     }
 
     const params = new URLSearchParams({ language })
-    const response = await fetch(`${API_BASE_URL}/api/sources?${params.toString()}`)
+    const response = await fetch(`${API_BASE_URL}/api/sources?${params.toString()}`, {
+      headers: authService.getAuthHeaders(),
+    })
 
     if (!response.ok) {
       throw new Error(`Failed to load sources (${response.status})`)
