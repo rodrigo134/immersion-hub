@@ -7,6 +7,7 @@ import StudyAreas from '../components/layout/StudyAreas'
 import CategoryMaterialsScreen from '../components/study/CategoryMaterialsScreen'
 import TranscriptionScreen from '../components/transcription/TranscriptionScreen'
 import StudyTipsScreen from '../components/tips/StudyTipsScreen'
+import { useAuth } from '../contexts/AuthContext'
 import { flashcardGateway } from '../services/flashcardGateway'
 import { studyMaterialGateway } from '../services/studyMaterialGateway'
 import type { Deck, Flashcard, FlashcardInput, LanguageCode } from '../types/flashcard'
@@ -23,6 +24,7 @@ type Screen =
   | 'transcription'
 
 export default function Home() {
+  const { logout } = useAuth()
   const [screen, setScreen] = useState<Screen>('home')
   const [uiLanguage, setUiLanguage] = useState<UiLanguage>('PT')
   const [cards, setCards] = useState<Flashcard[]>([])
@@ -161,6 +163,7 @@ export default function Home() {
       }}
       uiLanguage={uiLanguage}
       onUiLanguageChange={setUiLanguage}
+      onLogout={logout}
     >
       {screen === 'home' && (
         <StudyAreas

@@ -1,4 +1,4 @@
-import { Brain, Languages, X } from 'lucide-react'
+import { Brain, Languages, LogOut, X } from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { StudyLanguage } from '../../types/study'
@@ -26,6 +26,7 @@ type NavbarProps = {
   onStudyLanguageChange: (language: StudyLanguage) => void
   uiLanguage: UiLanguage
   onUiLanguageChange: (language: UiLanguage) => void
+  onLogout: () => void
 }
 
 type Panel = 'studyLang' | 'uiLang' | 'pomodoro' | null
@@ -42,6 +43,7 @@ export default function Navbar({
   onStudyLanguageChange,
   uiLanguage,
   onUiLanguageChange,
+  onLogout,
 }: NavbarProps) {
   const currentBgIndex = useMemo(() => {
     const seed = 'lingua-hub-default-background'
@@ -70,6 +72,7 @@ export default function Navbar({
           studyLanguageTitle: 'Study Language',
           interfaceLanguageTitle: 'Interface Language',
           interfaceLangShort: 'Language',
+          logout: 'Logout',
           heroTitleTop: 'Master Languages',
           heroTitleBottom: 'At Your Own Pace',
           heroDescription:
@@ -92,6 +95,7 @@ export default function Navbar({
           studyLanguageTitle: 'Idioma de estudo',
           interfaceLanguageTitle: 'Idioma da interface',
           interfaceLangShort: 'Idioma',
+          logout: 'Sair',
           heroTitleTop: 'Domine Idiomas',
           heroTitleBottom: 'No Seu Ritmo',
           heroDescription:
@@ -161,6 +165,13 @@ export default function Navbar({
               className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
             >
               {copy.focusButton}
+            </button>
+            <button
+              onClick={onLogout}
+              className="inline-flex items-center gap-2 rounded-xl border border-rose-400/40 bg-rose-500/15 px-3 py-2 text-xs font-semibold text-rose-100 transition hover:bg-rose-500/25"
+            >
+              <LogOut className="size-3.5" />
+              {copy.logout}
             </button>
           </div>
         </nav>
