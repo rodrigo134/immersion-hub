@@ -1,7 +1,8 @@
-import { Brain, X } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { Brain, Languages, X } from 'lucide-react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { StudyLanguage } from '../../types/study'
+import type { UiLanguage } from '../../types/ui'
 import PomodoroPanel from './PomodoroPanel'
 
 const backgroundImages = [
@@ -23,6 +24,8 @@ type NavbarProps = {
   children?: ReactNode
   studyLanguage: StudyLanguage
   onStudyLanguageChange: (language: StudyLanguage) => void
+  uiLanguage: UiLanguage
+  onUiLanguageChange: (language: UiLanguage) => void
 }
 
 type Panel = 'studyLang' | 'uiLang' | 'pomodoro' | null
@@ -37,12 +40,66 @@ export default function Navbar({
   children,
   studyLanguage,
   onStudyLanguageChange,
+  uiLanguage,
+  onUiLanguageChange,
 }: NavbarProps) {
-  const [currentBgIndex] = useState(
-    Math.floor(Math.random() * backgroundImages.length),
-  )
+  const currentBgIndex = useMemo(() => {
+    const seed = 'lingua-hub-default-background'
+    let hash = 0
+    for (let i = 0; i < seed.length; i += 1) {
+      hash = (hash * 31 + seed.charCodeAt(i)) | 0
+    }
+    return Math.abs(hash) % backgroundImages.length
+  }, [])
   const [openPanel, setOpenPanel] = useState<Panel>(null)
   const isPomodoroOpen = openPanel === 'pomodoro'
+
+  const copy =
+    uiLanguage === 'EN'
+      ? {
+          brandTagline: 'Learn. Practice. Master.',
+          home: 'Home',
+          flashcards: 'Flashcards',
+          transcription: 'Transcription',
+          inspiration: 'Inspiration',
+          tips: 'Tips',
+          studyButton: 'Study',
+          uiButton: 'UI',
+          focusButton: 'Focus',
+          closePanel: 'Close panel',
+          studyLanguageTitle: 'Study Language',
+          interfaceLanguageTitle: 'Interface Language',
+          interfaceLangShort: 'Language',
+          heroTitleTop: 'Master Languages',
+          heroTitleBottom: 'At Your Own Pace',
+          heroDescription:
+            'Complete system with flashcards, audio transcription, and organized materials.',
+          heroDescriptionLine2: 'Everything you need in one place.',
+          startNow: 'Start Now',
+          viewCategories: 'View Categories',
+        }
+      : {
+          brandTagline: 'Aprenda. Pratique. Domine.',
+          home: 'Inicio',
+          flashcards: 'Flashcards',
+          transcription: 'Transcricao',
+          inspiration: 'Inspiracao',
+          tips: 'Dicas',
+          studyButton: 'Estudo',
+          uiButton: 'UI',
+          focusButton: 'Foco',
+          closePanel: 'Fechar painel',
+          studyLanguageTitle: 'Idioma de estudo',
+          interfaceLanguageTitle: 'Idioma da interface',
+          interfaceLangShort: 'Idioma',
+          heroTitleTop: 'Domine Idiomas',
+          heroTitleBottom: 'No Seu Ritmo',
+          heroDescription:
+            'Sistema completo de flashcards, transcricao de audio e materiais organizados.',
+          heroDescriptionLine2: 'Tudo que voce precisa em um so lugar.',
+          startNow: 'Comecar Agora',
+          viewCategories: 'Ver Categorias',
+        }
 
   function togglePanel(panel: Exclude<Panel, null>) {
     setOpenPanel((curr) => (curr === panel ? null : panel))
@@ -69,17 +126,17 @@ export default function Navbar({
               <Brain className="size-6 text-white" />
             </div>
             <div>
-              <div className="font-bold text-white">Lingua Hub</div>
-              <div className="text-xs text-white/60">Aprenda. Pratique. Domine.</div>
+              <div className="font-bold text-white">Immersion Hub</div>
+              <div className="text-xs text-white/60">{copy.brandTagline}</div>
             </div>
           </div>
 
           <ul className="flex list-none gap-4">
-            <li><button onClick={() => onNavigate?.('home')} className={navClass('home')}>Inicio</button></li>
-            <li><button onClick={() => onNavigate?.('flashcards')} className={navClass('flashcards')}>Flashcards</button></li>
-            <li><button onClick={() => onNavigate?.('transcription')} className={navClass('transcription')}>Transcricao</button></li>
-            <li><button onClick={() => onNavigate?.('inspiration')} className={navClass('inspiration')}>Inspiracao</button></li>
-            <li><button onClick={() => onNavigate?.('tips')} className={navClass('tips')}>Dicas</button></li>
+            <li><button onClick={() => onNavigate?.('home')} className={navClass('home')}>{copy.home}</button></li>
+            <li><button onClick={() => onNavigate?.('flashcards')} className={navClass('flashcards')}>{copy.flashcards}</button></li>
+            <li><button onClick={() => onNavigate?.('transcription')} className={navClass('transcription')}>{copy.transcription}</button></li>
+            <li><button onClick={() => onNavigate?.('inspiration')} className={navClass('inspiration')}>{copy.inspiration}</button></li>
+            <li><button onClick={() => onNavigate?.('tips')} className={navClass('tips')}>{copy.tips}</button></li>
           </ul>
 
           <div className="flex items-center gap-2">
@@ -87,26 +144,30 @@ export default function Navbar({
               onClick={() => togglePanel('studyLang')}
               className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
             >
-              Study: {studyLanguage}
+              {copy.studyButton}: {studyLanguage}
             </button>
             <button
               onClick={() => togglePanel('uiLang')}
-              className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
+              className="group inline-flex items-center gap-2 rounded-full border border-cyan-400/35 bg-gradient-to-r from-cyan-500/25 to-blue-500/25 px-3 py-2 text-xs font-semibold text-white shadow-md shadow-cyan-500/20 transition hover:from-cyan-500/35 hover:to-blue-500/35"
             >
-              UI
+              <Languages className="size-3.5 text-cyan-200 transition group-hover:rotate-6" />
+              {copy.interfaceLangShort}
+              <span className="rounded-full border border-cyan-300/40 bg-cyan-400/15 px-2 py-0.5 text-[10px] font-black tracking-wide text-cyan-100">
+                {uiLanguage}
+              </span>
             </button>
             <button
               onClick={() => togglePanel('pomodoro')}
               className="rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15"
             >
-              Focus
+              {copy.focusButton}
             </button>
           </div>
         </nav>
 
         {openPanel && (
           <button
-            aria-label="Fechar painel"
+            aria-label={copy.closePanel}
             onClick={() => setOpenPanel(null)}
             className="fixed inset-0 z-40 cursor-default"
           />
@@ -122,7 +183,7 @@ export default function Navbar({
               className="fixed right-6 top-20 z-50 w-72 rounded-2xl border border-slate-800 bg-slate-900/95 p-4 shadow-2xl"
             >
               <div className="mb-3 flex items-center justify-between">
-                <div className="font-bold text-white">Idioma de estudo</div>
+                <div className="font-bold text-white">{copy.studyLanguageTitle}</div>
                 <button
                   onClick={() => setOpenPanel(null)}
                   className="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10"
@@ -157,7 +218,7 @@ export default function Navbar({
               className="fixed right-6 top-20 z-50 w-72 rounded-2xl border border-slate-800 bg-slate-900/95 p-4 shadow-2xl"
             >
               <div className="mb-3 flex items-center justify-between">
-                <div className="font-bold text-white">Idioma da interface</div>
+                <div className="font-bold text-white">{copy.interfaceLanguageTitle}</div>
                 <button
                   onClick={() => setOpenPanel(null)}
                   className="rounded-lg px-2 py-1 text-white/70 hover:bg-white/10"
@@ -170,8 +231,11 @@ export default function Navbar({
                 {['PT', 'EN'].map((lang) => (
                   <button
                     key={lang}
-                    onClick={() => setOpenPanel(null)}
-                    className="rounded-xl bg-white/10 px-3 py-2 text-sm text-white hover:bg-white/15"
+                    onClick={() => {
+                      onUiLanguageChange(lang as UiLanguage)
+                      setOpenPanel(null)
+                    }}
+                    className={`rounded-xl px-3 py-2 text-sm text-white transition ${uiLanguage === lang ? 'bg-cyan-500/35 ring-1 ring-cyan-400' : 'bg-white/10 hover:bg-white/15'}`}
                   >
                     {lang}
                   </button>
@@ -190,7 +254,7 @@ export default function Navbar({
           transition={{ duration: 0.12 }}
           className={`fixed right-6 top-20 z-50 origin-top-right ${isPomodoroOpen ? '' : 'pointer-events-none'}`}
         >
-          <PomodoroPanel onClose={() => setOpenPanel(null)} />
+          <PomodoroPanel uiLanguage={uiLanguage} onClose={() => setOpenPanel(null)} />
         </motion.div>
       </div>
 
@@ -208,16 +272,16 @@ export default function Navbar({
             >
               <div className="relative mx-auto max-w-4xl text-center">
                 <h1 className="mb-8 text-6xl font-black leading-tight text-white md:text-7xl">
-                  Domine Idiomas
+                  {copy.heroTitleTop}
                   <br />
                   <span className="bg-gradient-to-br from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    No Seu Ritmo
+                    {copy.heroTitleBottom}
                   </span>
                 </h1>
                 <p className="mb-12 text-2xl leading-relaxed text-slate-300">
-                  Sistema completo de flashcards, transcricao de audio e materiais organizados.
+                  {copy.heroDescription}
                   <br />
-                  Tudo que voce precisa em um so lugar.
+                  {copy.heroDescriptionLine2}
                 </p>
 
                 <div className="flex flex-wrap justify-center gap-4">
@@ -226,13 +290,13 @@ export default function Navbar({
                     className="rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-10 py-5 text-lg font-bold text-white shadow-lg shadow-blue-500/30 transition-all hover:scale-105 hover:shadow-xl"
                   >
                     <Brain className="mr-2 inline size-6" />
-                    Comecar Agora
+                    {copy.startNow}
                   </button>
                   <button
                     onClick={() => window.scrollTo({ top: 800, behavior: 'smooth' })}
                     className="rounded-2xl border border-slate-700 bg-slate-800 px-10 py-5 text-lg font-bold text-white shadow-lg transition-all hover:scale-105 hover:bg-slate-700"
                   >
-                    Ver Categorias
+                    {copy.viewCategories}
                   </button>
                 </div>
               </div>

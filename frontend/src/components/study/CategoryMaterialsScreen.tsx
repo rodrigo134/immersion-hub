@@ -2,8 +2,10 @@ import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight, ExternalLink, Search } 
 import { useEffect, useState } from 'react'
 import { studyMaterialGateway } from '../../services/studyMaterialGateway'
 import type { PaginatedStudyMaterials, StudyCategoryId, StudyLanguage } from '../../types/study'
+import type { UiLanguage } from '../../types/ui'
 
 type CategoryMaterialsScreenProps = {
+  uiLanguage: UiLanguage
   categoryId: StudyCategoryId
   language: StudyLanguage
   onBack: () => void
@@ -11,7 +13,12 @@ type CategoryMaterialsScreenProps = {
 
 const PAGE_SIZE = 8
 
-export default function CategoryMaterialsScreen({ categoryId, language, onBack }: CategoryMaterialsScreenProps) {
+export default function CategoryMaterialsScreen({
+  uiLanguage,
+  categoryId,
+  language,
+  onBack,
+}: CategoryMaterialsScreenProps) {
   const [pageData, setPageData] = useState<PaginatedStudyMaterials>({
     items: [],
     total: 0,
@@ -24,6 +31,41 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
 
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+
+  const copy =
+    uiLanguage === 'EN'
+      ? {
+          loadError: 'Failed to load materials. Please try again.',
+          back: 'Back',
+          materialsOf: 'Materials for',
+          resources: 'resources available for study',
+          searchPlaceholder: 'Search material...',
+          loading: 'Loading materials...',
+          noDescription: 'No description available.',
+          openMaterial: 'Open Material',
+          noResults: 'No materials found.',
+          page: 'Page',
+          of: 'of',
+          showing: 'Showing',
+          previous: 'Previous',
+          next: 'Next',
+        }
+      : {
+          loadError: 'Falha ao carregar materiais. Tente novamente.',
+          back: 'Voltar',
+          materialsOf: 'Materiais de',
+          resources: 'recursos disponiveis para estudo',
+          searchPlaceholder: 'Buscar material...',
+          loading: 'Carregando materiais...',
+          noDescription: 'Sem descricao disponivel.',
+          openMaterial: 'Acessar Material',
+          noResults: 'Nenhum material encontrado.',
+          page: 'Pagina',
+          of: 'de',
+          showing: 'Mostrando',
+          previous: 'Anterior',
+          next: 'Proxima',
+        }
 
   useEffect(() => {
     setPage(1)
@@ -46,7 +88,7 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
 
         if (mounted) setPageData(result)
       } catch {
-        if (mounted) setError('Falha ao carregar materiais. Tente novamente.')
+        if (mounted) setError(copy.loadError)
       } finally {
         if (mounted) setLoading(false)
       }
@@ -56,7 +98,7 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
     return () => {
       mounted = false
     }
-  }, [categoryId, language, page, search])
+  }, [categoryId, language, page, search, copy.loadError])
 
   const categoryTitle = categoryId
     .replace(/[_-]+/g, ' ')
@@ -70,13 +112,15 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
           className="mb-8 inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-900/65 px-4 py-3 text-lg font-bold text-white transition hover:bg-slate-800"
         >
           <ArrowLeft className="size-5" />
-          Voltar
+          {copy.back}
         </button>
 
         <header className="mb-6">
-          <h1 className="text-5xl font-black text-white md:text-6xl">Materiais de {categoryTitle}</h1>
+          <h1 className="text-5xl font-black text-white md:text-6xl">
+            {copy.materialsOf} {categoryTitle}
+          </h1>
           <p className="mt-2 text-xl text-slate-300">
-            {pageData.total} recursos disponiveis para estudo ({language})
+            {pageData.total} {copy.resources} ({language})
           </p>
         </header>
 
@@ -86,7 +130,7 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar material..."
+              placeholder={copy.searchPlaceholder}
               className="w-full rounded-xl border border-slate-700 bg-slate-900/45 py-2.5 pl-10 pr-3 text-slate-200 outline-none transition focus:border-cyan-400"
             />
           </label>
@@ -94,7 +138,7 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
 
         {loading && (
           <div className="rounded-2xl border border-slate-700/50 bg-slate-900/45 p-8 text-center text-slate-200 backdrop-blur-sm">
-            Carregando materiais...
+            {copy.loading}
           </div>
         )}
 
@@ -123,7 +167,7 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
 
                   <h3 className="line-clamp-2 text-xl font-extrabold text-white">{item.name}</h3>
                   <p className="mt-2 line-clamp-2 text-sm text-slate-300">
-                    {item.description?.trim() || 'Sem descricao disponivel.'}
+                    {item.description?.trim() || copy.noDescription}
                   </p>
 
                   <a
@@ -132,7 +176,7 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
                     rel="noreferrer"
                     className="mt-auto inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-500 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-cyan-500/25 transition hover:brightness-110"
                   >
-                    Acessar Material
+                    {copy.openMaterial}
                     <ExternalLink className="size-4" />
                   </a>
                 </article>
@@ -141,13 +185,14 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
 
             {pageData.items.length === 0 && (
               <div className="mt-6 rounded-2xl border border-slate-700/50 bg-slate-900/45 p-8 text-center text-slate-300 backdrop-blur-sm">
-                Nenhum material encontrado.
+                {copy.noResults}
               </div>
             )}
 
             <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-700/50 bg-slate-900/45 px-4 py-3 text-slate-200 backdrop-blur-sm">
               <p>
-                Pagina {pageData.page} de {pageData.totalPages} - Mostrando {pageData.items.length} de {pageData.total}
+                {copy.page} {pageData.page} {copy.of} {pageData.totalPages} - {copy.showing}{' '}
+                {pageData.items.length} {copy.of} {pageData.total}
               </p>
 
               <div className="flex items-center gap-2">
@@ -157,14 +202,14 @@ export default function CategoryMaterialsScreen({ categoryId, language, onBack }
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-3 py-2 text-sm font-semibold transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <ChevronLeft className="size-4" />
-                  Anterior
+                  {copy.previous}
                 </button>
                 <button
                   onClick={() => setPage((curr) => Math.min(pageData.totalPages, curr + 1))}
                   disabled={pageData.page >= pageData.totalPages}
                   className="inline-flex items-center gap-2 rounded-xl border border-slate-600 px-3 py-2 text-sm font-semibold transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Proxima
+                  {copy.next}
                   <ChevronRight className="size-4" />
                 </button>
               </div>

@@ -1,4 +1,16 @@
-import { AudioLines, BookOpen, Ear, MessageCircle, Mic, Music2, PenLine, Radio, Repeat2, Sparkles } from 'lucide-react'
+import {
+  AudioLines,
+  BookOpen,
+  Ear,
+  MessageCircle,
+  Mic,
+  Music2,
+  PenLine,
+  Radio,
+  Repeat2,
+  Sparkles,
+} from 'lucide-react'
+import type { UiLanguage } from '../../types/ui'
 
 type TipItem = {
   title: string
@@ -8,7 +20,7 @@ type TipItem = {
   accent: string
 }
 
-const tipsByArea: TipItem[] = [
+const tipsByAreaPt: TipItem[] = [
   {
     title: 'Shadowing Inteligente',
     description: 'Treine ouvido e pronuncia juntos em blocos curtos e repetiveis.',
@@ -131,16 +143,155 @@ const tipsByArea: TipItem[] = [
   },
 ]
 
-export default function StudyTipsScreen() {
+const tipsByAreaEn: TipItem[] = [
+  {
+    title: 'Smart Shadowing',
+    description: 'Train listening and pronunciation together in short repeatable chunks.',
+    bullets: [
+      'Pick a 20-40 second audio clip with transcript.',
+      'Listen once normally and once while reading.',
+      'Repeat 3 cycles: listen, pause, imitate rhythm.',
+      'Record yourself and compare with the original.',
+    ],
+    icon: Repeat2,
+    accent: 'from-cyan-500 to-blue-500',
+  },
+  {
+    title: 'Study with Music',
+    description: 'Use songs to internalize natural expressions and improve intonation.',
+    bullets: [
+      'Choose one song per week.',
+      'Select 5 phrases from the lyrics to study.',
+      'Sing along focusing on pronunciation and rhythm.',
+      'Turn those phrases into flashcards.',
+    ],
+    icon: Music2,
+    accent: 'from-rose-500 to-fuchsia-500',
+  },
+  {
+    title: 'Radio and Podcasts',
+    description: 'Daily real-audio listening accelerates comprehension.',
+    bullets: [
+      'Start with 10 minutes per day.',
+      'Note recurring words during the week.',
+      'Listen again the next day to validate understanding.',
+      'Summarize the main topic in 3 sentences.',
+    ],
+    icon: Radio,
+    accent: 'from-violet-500 to-indigo-500',
+  },
+  {
+    title: 'Reading with Action',
+    description: 'Active vocabulary capture while reading creates real progress.',
+    bullets: [
+      'Read short texts every day (10-15 min).',
+      'Mark only 5 new words per session.',
+      'Create your own sentence for each word.',
+      'Review the next day in 3 minutes.',
+    ],
+    icon: BookOpen,
+    accent: 'from-blue-500 to-cyan-500',
+  },
+  {
+    title: 'Progressive Comprehension',
+    description: 'Increase difficulty in steps to avoid overload.',
+    bullets: [
+      'Week 1: slow audio with subtitles.',
+      'Week 2: normal audio with subtitles.',
+      'Week 3: normal audio without subtitles.',
+      'Week 4: spoken summary of what you understood.',
+    ],
+    icon: Ear,
+    accent: 'from-emerald-500 to-teal-500',
+  },
+  {
+    title: 'Language Journal',
+    description: 'A short daily journal builds consistency.',
+    bullets: [
+      'Write 3 new sentences per day.',
+      'Write a mini study summary.',
+      'Track 1 recurring mistake per week.',
+      'Review this journal before your next session.',
+    ],
+    icon: PenLine,
+    accent: 'from-amber-500 to-orange-500',
+  },
+  {
+    title: 'Talk with GPT',
+    description: 'Use AI for conversation, correction, and idea expansion.',
+    bullets: [
+      'Ask for a role-play dialogue on a specific topic.',
+      'Request correction with a short explanation.',
+      'Ask for 3 natural alternatives for the same sentence.',
+      'End with key vocabulary to review later.',
+    ],
+    icon: MessageCircle,
+    accent: 'from-sky-500 to-indigo-500',
+  },
+  {
+    title: 'Voice Training (Grok/Others)',
+    description: 'Real-time speaking practice builds confidence.',
+    bullets: [
+      'Use voice mode for quick Q&A drills.',
+      'Train blocks: opinion, question, agreement, summary.',
+      'Prioritize clarity before speed.',
+      'Repeat the same topic on 3 different days.',
+    ],
+    icon: AudioLines,
+    accent: 'from-teal-500 to-cyan-500',
+  },
+  {
+    title: 'Short Stable Routine',
+    description: 'A short daily session beats occasional marathon sessions.',
+    bullets: [
+      '20 min: 8 min input + 8 min practice + 4 min review.',
+      'Use Pomodoro to maintain rhythm.',
+      'Set a clear weekly goal.',
+      'Do not break your streak.',
+    ],
+    icon: Sparkles,
+    accent: 'from-emerald-500 to-lime-500',
+  },
+  {
+    title: 'Speaking without Anxiety',
+    description: 'Fluency improves by repeating reusable structures.',
+    bullets: [
+      'Build chunks: opinion, disagreement, question.',
+      'Practice out loud for 5 minutes daily.',
+      'Reuse base sentences across different topics.',
+      'Prioritize natural speech over perfection.',
+    ],
+    icon: Mic,
+    accent: 'from-rose-500 to-orange-500',
+  },
+]
+
+type StudyTipsScreenProps = {
+  uiLanguage: UiLanguage
+}
+
+export default function StudyTipsScreen({ uiLanguage }: StudyTipsScreenProps) {
+  const tipsByArea = uiLanguage === 'EN' ? tipsByAreaEn : tipsByAreaPt
+  const copy =
+    uiLanguage === 'EN'
+      ? {
+          title: 'Study Tips',
+          subtitle:
+            'Practical guide to improve consistently: music, radio, journaling, AI, voice, and daily routine.',
+        }
+      : {
+          title: 'Dicas de Estudo',
+          subtitle:
+            'Guia pratico para evoluir com consistencia: musica, radio, diario, IA, voz e rotina diaria.',
+        }
+
   return (
     <section className="relative z-10 min-h-screen px-6 pb-16 pt-28">
       <div className="mx-auto max-w-6xl">
         <header className="mb-8 rounded-3xl border border-slate-700/50 bg-slate-900/45 p-6 backdrop-blur-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300">Playbook</p>
-          <h1 className="mt-2 text-5xl font-black text-white md:text-6xl">Dicas de Estudo</h1>
-          <p className="mt-3 max-w-3xl text-lg text-slate-300">
-            Guia pratico para evoluir com consistencia: musica, radio, diario, IA, voz e rotina diaria.
-          </p>
+          <h1 className="mt-2 text-5xl font-black text-white md:text-6xl">{copy.title}</h1>
+          <p className="mt-3 max-w-3xl text-lg text-slate-300">{copy.subtitle}</p>
         </header>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

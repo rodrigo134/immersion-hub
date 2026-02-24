@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { useEffect, useMemo, useState, type MouseEvent } from 'react'
+import type { UiLanguage } from '../../types/ui'
 
 type CountryMood = {
   country: string
@@ -105,12 +106,32 @@ function SafeImage({ src, alt, className, onClick }: SafeImageProps) {
   )
 }
 
-export default function InspirationScreen() {
+type InspirationScreenProps = {
+  uiLanguage: UiLanguage
+}
+
+export default function InspirationScreen({ uiLanguage }: InspirationScreenProps) {
   const [countryIndex, setCountryIndex] = useState<number | null>(null)
   const [photoIndex, setPhotoIndex] = useState(0)
 
   const selectedCountry = countryIndex !== null ? countries[countryIndex] : null
-  const selectedImages = selectedCountry ? selectedCountry.images : []
+  const selectedImages = useMemo(() => selectedCountry?.images ?? [], [selectedCountry])
+  const copy =
+    uiLanguage === 'EN'
+      ? {
+          title: 'Inspiration by Country',
+          subtitle: 'One card per country. Click to open full-screen gallery.',
+          close: 'Close',
+          previous: 'Previous',
+          next: 'Next',
+        }
+      : {
+          title: 'Inspiracao por Paises',
+          subtitle: 'Um card por pais. Clique para abrir galeria em tela cheia (fotos reais selecionadas).',
+          close: 'Fechar',
+          previous: 'Anterior',
+          next: 'Proxima',
+        }
 
   useEffect(() => {
     if (!selectedCountry) return
@@ -181,10 +202,8 @@ export default function InspirationScreen() {
       <div className="mx-auto max-w-6xl">
         <header className="mb-8 rounded-3xl border border-slate-700/50 bg-slate-900/45 p-6 backdrop-blur-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-300">Moodboard</p>
-          <h1 className="mt-2 text-5xl font-black text-white md:text-6xl">Inspiracao por Paises</h1>
-          <p className="mt-3 max-w-3xl text-lg text-slate-300">
-            Um card por pais. Clique para abrir galeria em tela cheia (fotos reais selecionadas).
-          </p>
+          <h1 className="mt-2 text-5xl font-black text-white md:text-6xl">{copy.title}</h1>
+          <p className="mt-3 max-w-3xl text-lg text-slate-300">{copy.subtitle}</p>
         </header>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -228,7 +247,7 @@ export default function InspirationScreen() {
               closeViewer()
             }}
             className="absolute right-4 top-4 z-[96] rounded-full border border-white/30 bg-black/40 p-2 text-white hover:bg-black/60"
-            aria-label="Fechar"
+            aria-label={copy.close}
             type="button"
           >
             <X className="size-6" />
@@ -240,7 +259,7 @@ export default function InspirationScreen() {
               prevPhoto()
             }}
             className="absolute left-4 top-1/2 z-[96] -translate-y-1/2 rounded-full border border-white/30 bg-black/40 p-2 text-white hover:bg-black/60"
-            aria-label="Anterior"
+            aria-label={copy.previous}
             type="button"
           >
             <ChevronLeft className="size-7" />
@@ -252,7 +271,7 @@ export default function InspirationScreen() {
               nextPhoto()
             }}
             className="absolute right-4 top-1/2 z-[96] -translate-y-1/2 rounded-full border border-white/30 bg-black/40 p-2 text-white hover:bg-black/60"
-            aria-label="Proxima"
+            aria-label={copy.next}
             type="button"
           >
             <ChevronRight className="size-7" />

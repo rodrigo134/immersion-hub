@@ -1,7 +1,9 @@
 import { BookOpen, FolderOpen } from 'lucide-react'
 import type { StudyCategorySummary } from '../../types/study'
+import type { UiLanguage } from '../../types/ui'
 
 type Props = {
+  uiLanguage: UiLanguage
   categories: StudyCategorySummary[]
   loading: boolean
   onSelectCategory: (id: string) => void
@@ -15,26 +17,45 @@ const gradients = [
   'from-rose-500 to-pink-500',
 ]
 
-export default function StudyAreas({ categories, loading, onSelectCategory }: Props) {
+export default function StudyAreas({ uiLanguage, categories, loading, onSelectCategory }: Props) {
+  const copy =
+    uiLanguage === 'EN'
+      ? {
+          title: 'Study Areas',
+          subtitle: 'Categories loaded from backend, organized by study language.',
+          loading: 'Loading categories...',
+          empty: 'No categories found for the selected language.',
+          materials: 'materials',
+          description: 'Content available for study in this category.',
+          explore: 'Explore ->',
+        }
+      : {
+          title: 'Areas de Estudo',
+          subtitle: 'Categorias vindas do backend, separadas por idioma de estudo.',
+          loading: 'Carregando categorias...',
+          empty: 'Nenhuma categoria encontrada para o idioma selecionado.',
+          materials: 'materiais',
+          description: 'Conteudos para estudo nesta categoria.',
+          explore: 'Explorar ->',
+        }
+
   return (
     <section className="relative z-10 px-6 py-20">
       <div className="mx-auto max-w-6xl">
         <header className="mb-12 text-center">
-          <h2 className="mb-3 text-4xl font-black text-white">Areas de Estudo</h2>
-          <p className="text-slate-400">
-            Categorias vindas do backend, separadas por idioma de estudo.
-          </p>
+          <h2 className="mb-3 text-4xl font-black text-white">{copy.title}</h2>
+          <p className="text-slate-400">{copy.subtitle}</p>
         </header>
 
         {loading && (
           <div className="rounded-2xl border border-slate-700/50 bg-slate-900/45 p-6 text-center text-slate-300 backdrop-blur-sm">
-            Carregando categorias...
+            {copy.loading}
           </div>
         )}
 
         {!loading && categories.length === 0 && (
           <div className="rounded-2xl border border-slate-700/50 bg-slate-900/45 p-6 text-center text-slate-300 backdrop-blur-sm">
-            Nenhuma categoria encontrada para o idioma selecionado.
+            {copy.empty}
           </div>
         )}
 
@@ -60,14 +81,16 @@ export default function StudyAreas({ categories, loading, onSelectCategory }: Pr
 
                   <div>
                     <div className="text-xl font-bold text-white">{category.title}</div>
-                    <div className="text-xs text-slate-400">{category.count} materiais</div>
+                    <div className="text-xs text-slate-400">
+                      {category.count} {copy.materials}
+                    </div>
                   </div>
                 </div>
 
-                <p className="mb-4 text-sm text-slate-400">Conteudos para estudo nesta categoria.</p>
+                <p className="mb-4 text-sm text-slate-400">{copy.description}</p>
 
                 <div className="text-sm font-semibold text-blue-400 transition-transform group-hover:translate-x-1">
-                  Explorar -&gt;
+                  {copy.explore}
                 </div>
               </button>
             ))}

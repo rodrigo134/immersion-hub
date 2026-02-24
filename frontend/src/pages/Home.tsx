@@ -9,8 +9,9 @@ import TranscriptionScreen from '../components/transcription/TranscriptionScreen
 import StudyTipsScreen from '../components/tips/StudyTipsScreen'
 import { flashcardGateway } from '../services/flashcardGateway'
 import { studyMaterialGateway } from '../services/studyMaterialGateway'
-import type { Flashcard, FlashcardInput } from '../types/flashcard'
+import type { Deck, Flashcard, FlashcardInput, LanguageCode } from '../types/flashcard'
 import type { StudyCategoryId, StudyCategorySummary, StudyLanguage } from '../types/study'
+import type { UiLanguage } from '../types/ui'
 
 type Screen =
   | 'home'
@@ -23,55 +24,106 @@ type Screen =
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>('home')
+  const [uiLanguage, setUiLanguage] = useState<UiLanguage>('PT')
   const [cards, setCards] = useState<Flashcard[]>([])
+  const [decks, setDecks] = useState<Deck[]>([])
+  const [selectedDeckId, setSelectedDeckId] = useState('')
   const [reviewCards, setReviewCards] = useState<Flashcard[]>([])
   const [selectedCategory, setSelectedCategory] = useState<StudyCategoryId>('')
   const [studyLanguage, setStudyLanguage] = useState<StudyLanguage>('EN')
   const [categories, setCategories] = useState<StudyCategorySummary[]>([])
-  const [loadingCategories, setLoadingCategories] = useState(false)
-
-  useEffect(() => {
-    void loadCards()
-  }, [])
-
-  useEffect(() => {
-    void loadCategories()
-  }, [studyLanguage])
+  const [loadingCategories, setLoadingCategories] = useState(true)
 
   async function loadCards() {
     const list = await flashcardGateway.list()
     setCards(list)
   }
 
-  async function loadCategories() {
-    setLoadingCategories(true)
-    try {
-      const list = await studyMaterialGateway.listCategories(studyLanguage)
-      setCategories(list)
-
-      if (list.length > 0) {
-        setSelectedCategory((current) => (current ? current : list[0].id))
-      } else {
-        setSelectedCategory('')
-      }
-    } finally {
-      setLoadingCategories(false)
-    }
+  async function loadDecks() {
+    const list = await flashcardGateway.listDecks()
+    setDecks(list)
+    setSelectedDeckId((current) => (list.some((deck) => deck.id === current) ? current : ''))
+    return list
   }
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void loadCards()
+      void loadDecks()
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timer)
+    }
+  }, [])
+
+  useEffect(() => {
+    let mounted = true
+
+    void studyMaterialGateway
+      .listCategories(studyLanguage)
+      .then((list) => {
+        if (!mounted) return
+        setCategories(list)
+        if (list.length > 0) {
+          setSelectedCategory((current) => (current ? current : list[0].id))
+        } else {
+          setSelectedCategory('')
+        }
+      })
+      .finally(() => {
+        if (mounted) setLoadingCategories(false)
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [studyLanguage])
 
   async function handleCreate(input: FlashcardInput) {
     await flashcardGateway.create(input)
+    await loadDecks()
     await loadCards()
   }
 
   async function handleUpdate(id: string, input: FlashcardInput) {
     await flashcardGateway.update(id, input)
+    await loadDecks()
     await loadCards()
   }
 
   async function handleDelete(id: string) {
     await flashcardGateway.remove(id)
     await loadCards()
+  }
+
+  async function handleCreateDeck(input: { name: string; language: LanguageCode }) {
+    const created = await flashcardGateway.createDeck({
+      name: input.name,
+      language: input.language,
+      description: '',
+    })
+    const list = await loadDecks()
+    const selectedId =
+      created.id ||
+      list.find(
+        (deck) =>
+          deck.name.trim().toLowerCase() === input.name.trim().toLowerCase() &&
+          deck.language === input.language,
+      )?.id ||
+      ''
+    setSelectedDeckId(selectedId)
+  }
+
+  async function handleDeleteDeck(deckId: string) {
+    await flashcardGateway.removeDeck(deckId)
+    const list = await loadDecks()
+    await loadCards()
+
+    setSelectedDeckId((current) => {
+      if (current !== deckId) return current
+      return list[0]?.id || ''
+    })
   }
 
   function openReview(selected: Flashcard[]) {
@@ -103,10 +155,16 @@ export default function Home() {
       }
       showHero={screen === 'home'}
       studyLanguage={studyLanguage}
-      onStudyLanguageChange={setStudyLanguage}
+      onStudyLanguageChange={(language) => {
+        setLoadingCategories(true)
+        setStudyLanguage(language)
+      }}
+      uiLanguage={uiLanguage}
+      onUiLanguageChange={setUiLanguage}
     >
       {screen === 'home' && (
         <StudyAreas
+          uiLanguage={uiLanguage}
           categories={categories}
           loading={loadingCategories}
           onSelectCategory={(id) => {
@@ -118,6 +176,7 @@ export default function Home() {
 
       {screen === 'category' && selectedCategory && (
         <CategoryMaterialsScreen
+          uiLanguage={uiLanguage}
           categoryId={selectedCategory}
           language={studyLanguage}
           onBack={() => setScreen('home')}
@@ -126,7 +185,13 @@ export default function Home() {
 
       {screen === 'flashcards' && (
         <FlashcardsManager
+          uiLanguage={uiLanguage}
           cards={cards}
+          decks={decks}
+          selectedDeckId={selectedDeckId}
+          onSelectDeck={setSelectedDeckId}
+          onCreateDeck={handleCreateDeck}
+          onDeleteDeck={handleDeleteDeck}
           onCreate={handleCreate}
           onUpdate={handleUpdate}
           onDelete={handleDelete}
@@ -135,12 +200,16 @@ export default function Home() {
       )}
 
       {screen === 'review' && (
-        <FlashcardsReview cards={reviewCards} onBack={() => setScreen('flashcards')} />
+        <FlashcardsReview
+          uiLanguage={uiLanguage}
+          cards={reviewCards}
+          onBack={() => setScreen('flashcards')}
+        />
       )}
 
-      {screen === 'tips' && <StudyTipsScreen />}
-      {screen === 'inspiration' && <InspirationScreen />}
-      {screen === 'transcription' && <TranscriptionScreen />}
+      {screen === 'tips' && <StudyTipsScreen uiLanguage={uiLanguage} />}
+      {screen === 'inspiration' && <InspirationScreen uiLanguage={uiLanguage} />}
+      {screen === 'transcription' && <TranscriptionScreen uiLanguage={uiLanguage} />}
     </NavBar>
   )
 }

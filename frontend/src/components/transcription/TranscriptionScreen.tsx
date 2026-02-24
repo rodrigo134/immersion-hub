@@ -125,6 +125,18 @@ function buildRecordTitle(tabName: string, transcript: TranscriptItem[]) {
   return `Registro ${new Date().toLocaleDateString('pt-BR')}`
 }
 
+function loadSavedRecords(): SavedRecord[] {
+  const raw = localStorage.getItem(LOCAL_STORAGE_KEY)
+  if (!raw) return []
+
+  try {
+    const parsed = JSON.parse(raw) as SavedRecord[]
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
 export default function TranscriptionScreen() {
   const [language, setLanguage] = useState('en-US')
   const [isListening, setIsListening] = useState(false)
@@ -134,8 +146,8 @@ export default function TranscriptionScreen() {
   const [interimText, setInterimText] = useState('')
   const [transcript, setTranscript] = useState<TranscriptItem[]>([])
   const [audioDataUrl, setAudioDataUrl] = useState('')
-  const [records, setRecords] = useState<SavedRecord[]>([])
-  const [selectedRecordId, setSelectedRecordId] = useState('')
+  const [records, setRecords] = useState<SavedRecord[]>(() => loadSavedRecords())
+  const [selectedRecordId, setSelectedRecordId] = useState(() => loadSavedRecords()[0]?.id ?? '')
   const [recordingAudio, setRecordingAudio] = useState(false)
   const [playingTime, setPlayingTime] = useState(0)
 
@@ -160,20 +172,6 @@ export default function TranscriptionScreen() {
     const matches = selectedRecord.transcript.filter((item) => item.elapsedSeconds <= playingTime)
     return matches.at(-1)?.id ?? ''
   }, [selectedRecord, playingTime])
-
-  useEffect(() => {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY)
-    if (!raw) return
-    try {
-      const parsed = JSON.parse(raw) as SavedRecord[]
-      if (Array.isArray(parsed)) {
-        setRecords(parsed)
-        setSelectedRecordId(parsed[0]?.id ?? '')
-      }
-    } catch {
-      setStatusMessage('Nao foi possivel carregar os registros salvos.')
-    }
-  }, [])
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(records))
