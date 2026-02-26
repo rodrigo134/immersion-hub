@@ -1,11 +1,17 @@
 import { useState } from 'react'
+import { ForgotPasswordForm } from '../components/auth/ForgotPasswordForm'
 import { LoginForm } from '../components/auth/LoginForm'
 import { RegisterForm } from '../components/auth/RegisterForm'
+import { ResetPasswordForm } from '../components/auth/ResetPasswordForm'
 import { useAuth } from '../contexts/AuthContext'
 import type { LoginRequest, RegisterRequest } from '../types/auth'
 
 export function AuthPage() {
-  const [isLogin, setIsLogin] = useState(true)
+  const searchParams = new URLSearchParams(window.location.search)
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot' | 'reset'>(
+    searchParams.get('mode') === 'reset' ? 'reset' : 'login',
+  )
+  const resetToken = searchParams.get('token') ?? ''
   const { login, register } = useAuth()
 
   async function handleLogin(data: LoginRequest) {
@@ -38,10 +44,24 @@ export function AuthPage() {
         </div>
 
         <div className="w-full">
-          {isLogin ? (
-            <LoginForm onLogin={handleLogin} onSwitchToRegister={() => setIsLogin(false)} />
-          ) : (
-            <RegisterForm onRegister={handleRegister} onSwitchToLogin={() => setIsLogin(true)} />
+          {mode === 'login' && (
+            <LoginForm
+              onLogin={handleLogin}
+              onSwitchToRegister={() => setMode('register')}
+              onForgotPassword={() => setMode('forgot')}
+            />
+          )}
+          {mode === 'register' && (
+            <RegisterForm onRegister={handleRegister} onSwitchToLogin={() => setMode('login')} />
+          )}
+          {mode === 'forgot' && (
+            <ForgotPasswordForm
+              onSwitchToLogin={() => setMode('login')}
+              onGoToReset={() => setMode('reset')}
+            />
+          )}
+          {mode === 'reset' && (
+            <ResetPasswordForm initialToken={resetToken} onSwitchToLogin={() => setMode('login')} />
           )}
         </div>
       </div>

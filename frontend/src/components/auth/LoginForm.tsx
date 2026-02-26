@@ -5,9 +5,10 @@ import type { LoginRequest } from '../../types/auth'
 interface LoginFormProps {
   onLogin: (credentials: LoginRequest) => Promise<void>
   onSwitchToRegister: () => void
+  onForgotPassword: () => void
 }
 
-export function LoginForm({ onLogin, onSwitchToRegister }: LoginFormProps) {
+export function LoginForm({ onLogin, onSwitchToRegister, onForgotPassword }: LoginFormProps) {
   const [formData, setFormData] = useState<LoginRequest>({
     username: '',
     password: '',
@@ -105,6 +106,12 @@ export function LoginForm({ onLogin, onSwitchToRegister }: LoginFormProps) {
         </form>
 
         <div className="mt-6 text-center">
+          <button
+            onClick={onForgotPassword}
+            className="mb-3 text-sm font-semibold text-slate-300 transition hover:text-white"
+          >
+            Forgot your password?
+          </button>
           <p className="text-slate-300">
             No account yet?{' '}
             <button
