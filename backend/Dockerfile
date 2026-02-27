@@ -1,5 +1,5 @@
 # Use Maven image for building
-FROM maven:3.9-openjdk-21 AS build
+FROM maven:3.8-openjdk-17 AS build
 
 WORKDIR /app
 
@@ -16,7 +16,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Use smaller runtime image
-FROM openjdk:21-jre-slim
+FROM openjdk:17-jre-slim
 
 WORKDIR /app
 
