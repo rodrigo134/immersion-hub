@@ -9,7 +9,7 @@ import type {
 } from '../types/flashcard'
 import { authService } from './authService'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim() || ''
+const API_BASE_URL = import.meta.env.VITE_API_URL?.trim() || ''
 
 type DeckResponse = {
   id?: string

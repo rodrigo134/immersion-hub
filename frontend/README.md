@@ -30,12 +30,12 @@ Frontend application for Immersion Hub, built with React + TypeScript + Vite.
 Create a `.env` file in the frontend root:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_URL=http://localhost:8080
 ```
 
 Notes:
 - In local development, Vite also proxies `/api` to `http://localhost:8080` (see `vite.config.ts`).
-- For production deploy, set `VITE_API_BASE_URL` to your backend public URL.
+- For production deploy, set `VITE_API_URL` to your backend public URL.
 
 ## Run Locally
 
@@ -68,7 +68,7 @@ npm run preview
 
 ## Deployment Checklist
 
-1. Set `VITE_API_BASE_URL` to the production backend URL.
+1. Set `VITE_API_URL` to the production backend URL.
 2. Run `npm run lint` and fix blocking issues.
 3. Run `npm run build`.
 4. Deploy the `dist/` folder to your static host (Vercel, Netlify, S3+CloudFront, Nginx, etc.).

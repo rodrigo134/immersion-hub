@@ -8,7 +8,7 @@ import type {
 } from '../types/study'
 import { authService } from './authService'
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim()
+const API_BASE_URL = import.meta.env.VITE_API_URL?.trim()
 
 type BackendSource = {
   id: string
@@ -91,7 +91,7 @@ function filterAndSearch(
 class ApiStudyMaterialGateway implements StudyMaterialGateway {
   private async fetchSourcesByLanguage(language: StudyLanguage): Promise<StudyMaterial[]> {
     if (!API_BASE_URL) {
-      throw new Error('VITE_API_BASE_URL is not configured')
+      throw new Error('VITE_API_URL is not configured')
     }
 
     const params = new URLSearchParams({ language })
