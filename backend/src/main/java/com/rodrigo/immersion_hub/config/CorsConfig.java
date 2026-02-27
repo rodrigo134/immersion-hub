@@ -15,8 +15,12 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Permite requisições de qualquer origem (para desenvolvimento)
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        // Permite requisições do frontend específico e localhost para desenvolvimento
+        configuration.setAllowedOrigins(Arrays.asList(
+            "https://immersion-hub-phi.vercel.app",
+            "http://localhost:5173",
+            "http://localhost:3000"
+        ));
         
         // Permite os métodos HTTP comuns
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
