@@ -8,7 +8,10 @@ import type {
 } from '../types/auth'
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL?.trim() || '';
+  import.meta.env.VITE_API_URL?.trim() || 'https://seu-backend-render-url.onrender.com';
+
+// Debug: Verificar URL em produção
+console.log('API_BASE_URL:', API_BASE_URL);
 
 class AuthService {
   private token: string | null = null;
