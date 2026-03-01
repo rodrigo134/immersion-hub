@@ -13,7 +13,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("api/decks")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class DeckController {
 
     private final DeckService deckService;

@@ -14,7 +14,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("api/sources")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SourceController {
 
     public final SourceService sourceService;
