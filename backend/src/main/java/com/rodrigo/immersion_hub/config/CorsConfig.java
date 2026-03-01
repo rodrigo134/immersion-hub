@@ -18,6 +18,7 @@ public class CorsConfig {
         // Permite requisições do frontend específico e localhost para desenvolvimento
         configuration.setAllowedOrigins(Arrays.asList(
             "https://immersion-hub-phi.vercel.app",
+            "https://immersion-hub.onrender.com",
             "http://localhost:5173",
             "http://localhost:3000"
         ));

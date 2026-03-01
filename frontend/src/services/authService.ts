@@ -8,7 +8,7 @@ import type {
 } from '../types/auth'
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL?.trim() || 'https://seu-backend-render-url.onrender.com';
+  import.meta.env.VITE_API_URL?.trim() || 'https://immersion-hub.onrender.com';
 
 // Debug: Verificar URL em produção
 console.log('API_BASE_URL:', API_BASE_URL);
