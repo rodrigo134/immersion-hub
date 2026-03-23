@@ -9,6 +9,7 @@ export type StudyMaterial = {
   url: string
   category: StudyCategoryId
   language: string
+  favorite: boolean
 }
 
 export type StudyCategorySummary = {
@@ -22,6 +23,7 @@ export type StudyMaterialQuery = {
   pageSize?: number
   search?: string
   language?: StudyLanguage
+  favoritesOnly?: boolean
 }
 
 export type PaginatedStudyMaterials = {

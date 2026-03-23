@@ -1,5 +1,5 @@
 import { Brain, Languages, LogOut, X } from 'lucide-react'
-import { useMemo, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { StudyLanguage } from '../../types/study'
 import type { UiLanguage } from '../../types/ui'
@@ -45,14 +45,7 @@ export default function Navbar({
   onUiLanguageChange,
   onLogout,
 }: NavbarProps) {
-  const currentBgIndex = useMemo(() => {
-    const seed = 'lingua-hub-default-background'
-    let hash = 0
-    for (let i = 0; i < seed.length; i += 1) {
-      hash = (hash * 31 + seed.charCodeAt(i)) | 0
-    }
-    return Math.abs(hash) % backgroundImages.length
-  }, [])
+  const [currentBgIndex] = useState(() => Math.floor(Math.random() * backgroundImages.length))
   const [openPanel, setOpenPanel] = useState<Panel>(null)
   const isPomodoroOpen = openPanel === 'pomodoro'
 

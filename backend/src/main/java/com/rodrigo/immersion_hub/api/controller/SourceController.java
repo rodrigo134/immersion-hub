@@ -39,6 +39,17 @@ public class SourceController {
         sourceService.deleteById(id);
     }
 
+    @PostMapping("/{id}/favorite")
+    public ResponseEntity<Void> favorite(@PathVariable UUID id) {
+        sourceService.favoriteSource(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}/favorite")
+    public ResponseEntity<Void> unfavorite(@PathVariable UUID id) {
+        sourceService.unfavoriteSource(id);
+        return ResponseEntity.noContent().build();
+    }
 
 
 
